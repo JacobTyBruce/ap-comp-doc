@@ -4,7 +4,7 @@
     <v-navigation-drawer v-model="drawer" app clipped>
       <v-list dense>
         <!-- Home -->
-        <v-list-item link href='Docs'>
+        <v-list-item link :to="{name: 'Home'}">
           <v-list-item-action>
             <v-icon>mdi-home</v-icon>
           </v-list-item-action>
@@ -13,7 +13,7 @@
           </v-list-item-content>
         </v-list-item>
         <!-- Docs -->
-        <v-list-item link>
+        <v-list-item link :to="{name: 'Docs'}">
           <v-list-item-action>
             <v-icon>mdi-file-document-multiple</v-icon>
           </v-list-item-action>
@@ -22,7 +22,7 @@
           </v-list-item-content>
         </v-list-item>
         <!-- Challenges -->
-        <v-list-item link>
+        <v-list-item link :to="{name: 'Challenges'}">
           <v-list-item-action>
             <v-icon>mdi-code-braces</v-icon>
           </v-list-item-action>
@@ -31,7 +31,7 @@
           </v-list-item-content>
         </v-list-item>
         <!-- Topics -->
-        <v-list-item link>
+        <v-list-item link :to="{name: 'Topics'}">
           <v-list-item-action>
             <v-icon>mdi-view-dashboard</v-icon>
           </v-list-item-action>
@@ -40,7 +40,7 @@
           </v-list-item-content>
         </v-list-item>
         <!-- Posts -->
-        <v-list-item link>
+        <v-list-item link :to="{name: 'Posts'}">
           <v-list-item-action>
             <v-icon>mdi-forum</v-icon>
           </v-list-item-action>
@@ -49,7 +49,7 @@
           </v-list-item-content>
         </v-list-item>
         <!-- Help -->
-        <v-list-item link>
+        <v-list-item link :to="{name: 'Help'}">
           <v-list-item-action>
             <v-icon>mdi-account-question</v-icon>
           </v-list-item-action>
@@ -69,14 +69,7 @@
       <v-container class="fill-height" fluid>
         <v-row align="center" justify="center">
           <v-col class="shrink">
-            <v-tooltip top>
-              <template v-slot:activator="{ on }">
-                <v-btn :href="source" icon large target="_blank" v-on="on">
-                  <v-icon large>mdi-code-tags</v-icon>
-                </v-btn>
-              </template>
-              <span>Source</span>
-            </v-tooltip>
+            <router-view> </router-view>
           </v-col>
         </v-row>
       </v-container>
