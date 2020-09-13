@@ -66,13 +66,7 @@
     </v-app-bar>
 
     <v-main>
-      <v-container class="fill-height" fluid>
-        <v-row align="center" justify="center">
-          <v-col class="shrink">
-            <router-view> </router-view>
-          </v-col>
-        </v-row>
-      </v-container>
+      <router-view />
     </v-main>
 
     <v-footer app>

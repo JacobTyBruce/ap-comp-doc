@@ -6,6 +6,7 @@ import Challenges from '../views/Challenges.vue'
 import Topics from '../views/Topics.vue'
 import Posts from '../views/Posts.vue'
 import Help from '../views/Help.vue'
+import DocContainer from '../components/DocContainer.vue'
 
 Vue.use(VueRouter)
 
@@ -19,6 +20,11 @@ Vue.use(VueRouter)
     path: '/docs',
     name: 'Docs',
     component: Docs
+  },
+  {
+    path: '/docs/:id',
+    name: 'DocContainer',
+    component: DocContainer
   },
   {
     path: '/challenges',

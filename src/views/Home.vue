@@ -1,15 +1,21 @@
 <template>
-  <h1>Hello</h1>
+  <v-container>
+    <v-row align="center">
+      <v-col class="text-center">
+        <h1>AP Computer Science Documentation</h1>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import HelloWorld from "@/components/HelloWorld.vue";
 
 export default {
-  name: 'Home',
+  name: "Home",
   components: {
-    HelloWorld
-  }
-}
+    HelloWorld,
+  },
+};
 </script>
