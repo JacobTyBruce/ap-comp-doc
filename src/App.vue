@@ -85,6 +85,11 @@ export default {
   }),
   created() {
     this.$vuetify.theme.dark = true;
+
+    docs = 
+    challenges =
+    users = 
+    this.$store.dispatch('commitDocs', )
   },
 };
 </script>
