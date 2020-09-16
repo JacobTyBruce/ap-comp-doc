@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cors = require('cors')
 
 const dbName = process.env.DB_NAME;
 const dbUser = process.env.DB_USER;
@@ -57,6 +58,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cors())
 
 // mapping function for URL and collection
 function getCollection(urlReq) {
@@ -105,12 +107,11 @@ app.post('/api/post/:col', (req, res) => {
     }
 })
 
-app.delete('/api/delete/:id/', (req, res) => {
-    console.log('Delete Request')
+app.delete('/api/delete/:col', (req, res) => {
     let collection = getCollection(req.params.col);
     if (collection == 'None') {res.send("Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col)}
     else {
-        collection.deleteOne(req.query).then(data => {res.send(data)});
+        collection.deleteOne(req.body).then(data => {res.send(data)});
     }
 })
 
