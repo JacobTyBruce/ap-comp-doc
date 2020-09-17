@@ -32,8 +32,10 @@ const challengeSchema = new mongoose.Schema({
 })
 const usersSchema = new mongoose.Schema({
     username: String,
+    email: String,
     password: String,
-    userId: String
+    userId: String,
+    roles: Array
 })
 
 
@@ -115,6 +117,6 @@ app.delete('/api/delete/:col', (req, res) => {
     }
 })
 
-app.listen(8080, () => {
-    console.log('Listening on port 8080');
+app.listen(8081, () => {
+    console.log('Listening on port 8081');
 });

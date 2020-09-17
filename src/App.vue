@@ -86,10 +86,24 @@ export default {
   created() {
     this.$vuetify.theme.dark = true;
 
-    docs = 
-    challenges =
-    users = 
-    this.$store.dispatch('commitDocs', )
+    axios.post('localhost:8081/api/post/users', {
+        username: "Jacob",
+        password: "SecretPassword",
+        userId: "34tugrn58"
+    }).then((response) => {
+        alert('Sent')
+    }).catch(() => {
+        alert('error')
+    })
+
+    axios.get('localhost:8081/api/get/users/all').then((response) => {
+        this.$store.dispatch('commitUsers', response )
+    }).then(() => {
+        alert('Sent')
+    }).catch(() => {
+        alert('error')
+    })
+    
   },
 };
 </script>
