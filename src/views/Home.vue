@@ -3,7 +3,6 @@
     <v-row align="center">
       <v-col class="text-center">
         <h1>AP Computer Science Documentation</h1>
-        <div>{{this.$store.state.users}} </div>
       </v-col>
     </v-row>
   </v-container>

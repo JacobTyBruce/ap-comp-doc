@@ -76,6 +76,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   props: {
     source: "www.google.com",
@@ -86,22 +88,23 @@ export default {
   created() {
     this.$vuetify.theme.dark = true;
 
-    axios.post('localhost:8081/api/post/users', {
-        username: "Jacob",
-        password: "SecretPassword",
-        userId: "34tugrn58"
-    }).then((response) => {
-        alert('Sent')
+    // get docs
+    axios.get('http://localhost:8081/api/get/docs/all').then((response) => {
+        this.$store.dispatch('commitDocs', response.data )
     }).catch(() => {
-        alert('error')
+        alert('error getting docs')
     })
-
-    axios.get('localhost:8081/api/get/users/all').then((response) => {
-        this.$store.dispatch('commitUsers', response )
-    }).then(() => {
-        alert('Sent')
+    // get challenges
+    axios.get('http://localhost:8081/api/get/challenges/all').then((response) => {
+        this.$store.dispatch('commitChallenges', response.data )
     }).catch(() => {
-        alert('error')
+        alert('error getting challenges')
+    })
+    // get users
+    axios.get('http://localhost:8081/api/get/users/all').then((response) => {
+        this.$store.dispatch('commitUsers', response.data )
+    }).catch(() => {
+        alert('error getting users')
     })
     
   },
