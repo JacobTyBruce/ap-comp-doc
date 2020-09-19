@@ -21,14 +21,14 @@ const docSchema = new mongoose.Schema({
     text: String,
     ref: Object,
     dateUpdated: Date,
-    tags: Array
+    tags: Array,
+    lastUpdated: String
 })
 const challengeSchema = new mongoose.Schema({
     title: String,
     desc: String,
     challenge: String,
     text: String,
-    dateCreated: Date
 })
 const usersSchema = new mongoose.Schema({
     username: String,
@@ -105,6 +105,8 @@ app.post('/api/post/:col', (req, res) => {
     let collection = getCollection(req.params.col);
     if (collection == 'None') {res.send("Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col)}
     else {
+        console.log(req.body)
+        req.body.title = 'ByeByeWorld'
         collection.create(req.body).then(data => {res.send(data)});
     }
 })
