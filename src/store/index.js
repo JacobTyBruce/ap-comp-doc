@@ -8,6 +8,7 @@ export default new Vuex.Store({
     docs: Array,
     challenges: Array,
     users: Array,
+    posts: Array,
     currentDataSet: Object
   },
   mutations: {
@@ -19,6 +20,9 @@ export default new Vuex.Store({
     },
     populateUsers(state, arr) {
       state.users = arr
+    },
+    populatePosts(state, arr) {
+      state.posts = arr
     },
     setCurrentDataSet(state, obj) {
       state.currentDataSet = obj
@@ -33,6 +37,9 @@ export default new Vuex.Store({
     },
     commitUsers(context, arr) {
       context.commit("populateUsers", arr)
+    },
+    commitPosts(context, arr) {
+      context.commit("populatePosts", arr)
     },
     commitCurrentDataSet(context, obj) {
       context.commit("setCurrentDataSet", obj)

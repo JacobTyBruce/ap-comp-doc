@@ -7,7 +7,7 @@
             <v-card-title>{{doc.title}}</v-card-title>
             <v-card-subtitle>{{doc.desc}}</v-card-subtitle>
             <v-card-actions>
-              <v-btn :to="{name: 'DocContainer', params: {id: doc.title}}" @click.native="this.$store.dispatch('commitCurrentDataSet', doc)">Go</v-btn>
+              <v-btn @click="navigate(doc)">Go</v-btn>
             </v-card-actions>
           </v-card>
 
@@ -19,5 +19,11 @@
 <script>
 export default {
   name: "Docs",
+  methods: {
+      navigate: function(doc) {
+          this.$store.dispatch('commitCurrentDataSet', doc);
+          this.$router.push({ name: 'DocContainer', params: {id: doc.title}})
+      }
+  }
 };
 </script>

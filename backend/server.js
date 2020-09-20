@@ -9,20 +9,13 @@ const dbUser = process.env.DB_USER;
 const dbPass = process.env.DB_PASS;
 
 // schemas for whatever youre doing
-// for testing on other db
-const testUserSchema = new mongoose.Schema({
-    name: String,
-    age: Number,
-    favoriteColor: String,
-})
 const docSchema = new mongoose.Schema({
     title: String,
     desc: String,
     text: String,
     ref: Object,
     dateUpdated: Date,
-    tags: Array,
-    lastUpdated: String
+    tags: Array
 })
 const challengeSchema = new mongoose.Schema({
     title: String,
@@ -37,21 +30,27 @@ const usersSchema = new mongoose.Schema({
     userId: String,
     roles: Array
 })
+const postSchema = new mongoose.Schema({
+    title: String,
+    text: String,
+    postedBy: String,
+    dateCreated: Date
+})
 
 
 // generate model
 // model = collection !!!!!!!!!!!
 // When searching use below Class Variable to search ie. Use route param as this
 // first param is uppercase singular
-const Car = mongoose.model('TestUser', testUserSchema)
 const Users = mongoose.model('User', usersSchema)
 const Challenges = mongoose.model('Challenge', challengeSchema)
 const Docs = mongoose.model('Doc', docSchema)
+const Posts = mongoose.model('Post', postSchema)
 
 // string to connect to mongodb, use .env for variables before uploading
 const mongo = `mongodb+srv://${dbUser}:${dbPass}@cluster0.gczfd.mongodb.net/${dbName}?retryWrites=true&w=majority`
 // connect
-mongoose.connect(mongo, {useNewUrlParser: true})
+mongoose.connect(mongo, {useNewUrlParser: true, useUnifiedTopology: true })
 // reference connection
 const db = mongoose.connection
 // errors
@@ -77,6 +76,10 @@ function getCollection(urlReq) {
         case "docs":
         case "Docs":
             param = Docs;
+            break;
+        case "posts":
+        case "Posts":
+            param = Posts;
             break;
         default:
             param = 'None'
@@ -105,8 +108,9 @@ app.post('/api/post/:col', (req, res) => {
     let collection = getCollection(req.params.col);
     if (collection == 'None') {res.send("Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col)}
     else {
-        console.log(req.body)
-        req.body.title = 'ByeByeWorld'
+        if (collection == Posts) {
+            req.body.dateCreated = new Date().toJSON();
+        }
         collection.create(req.body).then(data => {res.send(data)});
     }
 })

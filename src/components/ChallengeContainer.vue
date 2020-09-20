@@ -6,7 +6,7 @@
     </v-card>
     <v-divider></v-divider>
     <v-card>
-        <v-card-text>{{this.challegeContent.challenge}}</v-card-text>
+        <v-card-text v-html="this.challegeContent.challenge"></v-card-text>
     </v-card>
   </v-container>
 </template>

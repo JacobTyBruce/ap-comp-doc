@@ -7,7 +7,7 @@
             <v-card-title>{{challenge.title}}</v-card-title>
             <v-card-subtitle>{{challenge.desc}}</v-card-subtitle>
             <v-card-actions>
-              <v-btn :to="{name: 'ChallengeContainer', params: {id: challenge.title}}"  @click="console.log(challenge)">Go</v-btn>
+              <v-btn @click="navigate(challenge)">Go</v-btn>
             </v-card-actions>
           </v-card>
 
@@ -17,17 +17,13 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
-
 export default {
   name: "Challenges",
   methods: {
-      setData: function(challenge) {
-          this.$store.dispatch('commitCurrentDataSet', challenge)
-      },
-      ...mapActions([
-          'commitCurrentDataSet'
-      ])
+      navigate: function(challenge) {
+          this.$store.dispatch('commitCurrentDataSet', challenge);
+          this.$router.push({ name: 'ChallengeContainer', params: {id: challenge.title}})
+      }
   }
 };
 </script>

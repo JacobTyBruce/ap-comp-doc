@@ -4,7 +4,7 @@
     <v-navigation-drawer v-model="drawer" app clipped>
       <v-list dense>
         <!-- Home -->
-        <v-list-item link :to="{name: 'Home'}">
+        <v-list-item link :to="{name: 'Home'}" @click.stop="drawer = !drawer">
           <v-list-item-action>
             <v-icon>mdi-home</v-icon>
           </v-list-item-action>
@@ -13,7 +13,7 @@
           </v-list-item-content>
         </v-list-item>
         <!-- Docs -->
-        <v-list-item link :to="{name: 'Docs'}">
+        <v-list-item link :to="{name: 'Docs'}" @click.stop="drawer = !drawer">
           <v-list-item-action>
             <v-icon>mdi-file-document-multiple</v-icon>
           </v-list-item-action>
@@ -22,7 +22,7 @@
           </v-list-item-content>
         </v-list-item>
         <!-- Challenges -->
-        <v-list-item link :to="{name: 'Challenges'}">
+        <v-list-item link :to="{name: 'Challenges'}" @click.stop="drawer = !drawer">
           <v-list-item-action>
             <v-icon>mdi-code-braces</v-icon>
           </v-list-item-action>
@@ -31,7 +31,7 @@
           </v-list-item-content>
         </v-list-item>
         <!-- Topics -->
-        <v-list-item link :to="{name: 'Topics'}">
+        <v-list-item link :to="{name: 'Topics'}" @click.stop="drawer = !drawer">
           <v-list-item-action>
             <v-icon>mdi-view-dashboard</v-icon>
           </v-list-item-action>
@@ -40,7 +40,7 @@
           </v-list-item-content>
         </v-list-item>
         <!-- Posts -->
-        <v-list-item link :to="{name: 'Posts'}">
+        <v-list-item link :to="{name: 'Posts'}" @click.stop="drawer = !drawer">
           <v-list-item-action>
             <v-icon>mdi-forum</v-icon>
           </v-list-item-action>
@@ -49,7 +49,7 @@
           </v-list-item-content>
         </v-list-item>
         <!-- Help -->
-        <v-list-item link :to="{name: 'Help'}">
+        <v-list-item link :to="{name: 'Help'}" @click.stop="drawer = !drawer">
           <v-list-item-action>
             <v-icon>mdi-account-question</v-icon>
           </v-list-item-action>
@@ -63,6 +63,7 @@
     <v-app-bar app clipped-left>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>AP Computer Science Docs</v-toolbar-title>
+      <div id='test'></div>
     </v-app-bar>
 
     <v-main>
@@ -106,7 +107,13 @@ export default {
     }).catch(() => {
         alert('error getting users')
     })
+    // get posts
+    axios.get('http://localhost:8081/api/get/posts/all').then((response) => {
+        this.$store.dispatch('commitPosts', response.data )
+    }).catch(() => {
+        alert('error getting posts')
+    })
     
-  },
+  }
 };
 </script>
