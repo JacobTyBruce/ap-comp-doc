@@ -6,9 +6,9 @@
             <v-card-title>Login</v-card-title>
             <v-card-actions>
               <v-form>
-              <v-input></v-input>
-              <v-input></v-input>
-              <v-checkbox></v-checkbox>
+              <v-text-field label='Username' v-model="username" outlined></v-text-field>
+              <v-text-field label='Password' v-model="password" outlined></v-text-field>
+              <v-checkbox label='Remember Me' v-model="remember"></v-checkbox>
               </v-form>
             </v-card-actions>
         </v-card>
@@ -19,6 +19,18 @@
 
 <script>
 export default {
-    name: 'Login'
+    name: 'Login',
+    data: function() {
+        return {
+            username: '',
+            password: '',
+            remember: false
+        }
+    },
+    methods: {
+        login() {
+            
+        }
+    }
 }
 </script>
