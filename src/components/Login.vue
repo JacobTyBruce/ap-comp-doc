@@ -1,16 +1,17 @@
 <template>
-  <v-container>
+    <v-container>
     <v-row align="center">
       <v-col class="text-center">
-        <h1>AP Computer Science Documentation</h1>
+        <v-card max-width='50%'>
+            <v-card-title>Login</v-card-title>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-// @ is an alias to /src
 export default {
-  name: "Home"
-};
+    name: 'Login'
+}
 </script>

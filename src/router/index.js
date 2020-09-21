@@ -8,6 +8,7 @@ import Posts from '../views/Posts.vue'
 import Help from '../views/Help.vue'
 import DocContainer from '../components/DocContainer.vue'
 import ChallengeContainer from '../components/ChallengeContainer.vue'
+import Login from '../components/Login.vue'
 
 Vue.use(VueRouter)
 
@@ -52,6 +53,11 @@ Vue.use(VueRouter)
     name: 'Help',
     component: Help
   },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login
+  }
 ]
 
 const router = new VueRouter({
