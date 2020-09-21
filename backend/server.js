@@ -123,6 +123,12 @@ app.delete('/api/delete/:col', (req, res) => {
     }
 })
 
+app.get('/api/login', (req,res) => {
+    console.log('Login recieved')
+    console.log(req.headers.authorization)
+    res.send('Verified')
+})
+
 app.listen(8081, () => {
     console.log('Listening on port 8081');
 });
