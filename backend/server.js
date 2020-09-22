@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors')
+const bcrypt = require('bcrypt')
 
 const dbName = process.env.DB_NAME;
 const dbUser = process.env.DB_USER;
@@ -125,8 +126,25 @@ app.delete('/api/delete/:col', (req, res) => {
 
 app.get('/api/login', (req,res) => {
     console.log('Login recieved')
-    console.log(req.headers.authorization)
-    res.send('Verified')
+    var auth = Buffer.from(req.headers.authorization.split(" ")[1], 'base64').toString();
+    var username = auth.substring(0, auth.indexOf(":"))
+    var password = auth.substring(auth.indexOf(":")+1, auth.length)
+    console.log(username, password)
+})
+
+app.post('/api/signup', (req,res) => {
+    console.log('Recieved Signup Request')
+    req.body.userId = Math.random().toString(36).substr(2, 13)
+    req.body.roles = ['user']
+    req.body.password = bcrypt.hashSync(req.body.password, 12)
+    Users.create(req.body).then(data => {res.send(data)})
+})
+
+app.get('/test', (req,res) => {
+    bcrypt.compare('password', '$2b$12$976hIPGOopmuon9KX1Ncp.2k8IVPxqEn0m3u7bC9w6CMMdGkQGkvS').then((result) => {
+        console.log(result);
+        res.send('All Good')
+    })
 })
 
 app.listen(8081, () => {
