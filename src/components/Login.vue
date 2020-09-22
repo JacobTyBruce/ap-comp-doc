@@ -31,7 +31,7 @@ export default {
     methods: {
         login: function(user,pass) {
             alert('Login')
-            axios.get('https://8081-a84fe534-1172-4d9c-8a40-4ff533376bf1.ws-us02.gitpod.io/api/login', {
+            axios.get(`http://${process.env.VUE_APP_DB_URL}/api/login`, {
                 auth: {
                     username: user,
                     password: pass
@@ -41,8 +41,6 @@ export default {
             }).catch((err) => {
                 alert(err)
             })
-            this.username = ''
-            this.password = ''
         }
     }
 }

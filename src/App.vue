@@ -91,25 +91,25 @@ export default {
     this.$vuetify.theme.dark = true;
 
     // get docs
-    axios.get('https://8081-a84fe534-1172-4d9c-8a40-4ff533376bf1.ws-us02.gitpod.io/api/get/docs/all').then((response) => {
+    axios.get(`http://${process.env.VUE_APP_DB_URL}/api/get/docs/all`).then((response) => {
         this.$store.dispatch('commitDocs', response.data )
     }).catch((error) => {
-        alert(error, system.env.SERVER_URL)
+        alert(process.env.SERVER_URL)
     })
     // get challenges
-    axios.get('https://8081-a84fe534-1172-4d9c-8a40-4ff533376bf1.ws-us02.gitpod.io/api/get/challenges/all').then((response) => {
+    axios.get(`http://${process.env.VUE_APP_DB_URL}/api/get/challenges/all`).then((response) => {
         this.$store.dispatch('commitChallenges', response.data )
     }).catch(() => {
         alert('error getting challenges')
     })
     // get users
-    axios.get('https://8081-a84fe534-1172-4d9c-8a40-4ff533376bf1.ws-us02.gitpod.io/api/get/users/all').then((response) => {
+    axios.get(`http://${process.env.VUE_APP_DB_URL}/api/get/users/all`).then((response) => {
         this.$store.dispatch('commitUsers', response.data )
     }).catch(() => {
         alert('error getting users')
     })
     // get posts
-    axios.get('https://8081-a84fe534-1172-4d9c-8a40-4ff533376bf1.ws-us02.gitpod.io/api/get/posts/all').then((response) => {
+    axios.get(`http://${process.env.VUE_APP_DB_URL}/api/get/posts/all`).then((response) => {
         this.$store.dispatch('commitPosts', response.data )
     }).catch(() => {
         alert('error getting posts')
