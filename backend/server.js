@@ -147,12 +147,34 @@ app.get('/api/login', (req,res) => {
     })
 })
 
-app.post('/api/signup', (req,res) => {
-    console.log('Recieved Signup Request')
+app.post('/api/signup', async (req,res) => {
+    console.log('Received Signup Request')
+    var emailAvailable;
+    var userAvailable;
+
+    emailCheck = await Users.find({email: req.body.email}).exec()
+    emailAvailable = emailCheck.length == 0 ? true : false
+
+    var userCheck = await Users.find({username: req.body.username}).exec()
+    userAvailable = userCheck.length == 0 ? true : false
+
+    console.log('Checked Availability', emailAvailable, userAvailable)
+    if (emailAvailable == true && userAvailable == true) {
     req.body.userId = Math.random().toString(36).substr(2, 13)
     req.body.roles = ['user']
     req.body.password = bcrypt.hashSync(req.body.password, 12)
-    Users.create(req.body).then(data => {res.send(data)})
+    Users.create(req.body).then(data => {res.send((({ username, email, roles, userId }) => ({ username, email, roles, userId }))(data))})
+    console.log('Created User')
+    } else {
+        console.log('Error creating')
+        var errorMsg = {
+            errors: []
+        }
+        console.log(emailAvailable, userAvailable)
+        if(emailAvailable == false) {errorMsg.errors.push('Account Already Registered With Email'); console.log('Pushed Error with Email')}
+        if(userAvailable == false) {errorMsg.errors.push('Account Already Registered With Username'); console.log('Pushed Error with username')}
+        res.send(errorMsg)
+    }
 })
 
 app.get('/test', (req,res) => {

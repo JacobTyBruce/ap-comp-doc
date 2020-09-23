@@ -9,7 +9,9 @@
               <v-form>
               <v-text-field label='Username' v-model="username" outlined></v-text-field>
               <v-text-field label='Password' v-model="password" outlined></v-text-field>
+              <v-alert type='error' v-if="error == true">Wrong Password or Username</v-alert>
               <v-checkbox label='Remember Me' v-model="remember"></v-checkbox>
+              
               <v-btn color='success' @click="login(username,password)">Login</v-btn>
               </v-form>
             </v-card-actions>
@@ -26,7 +28,8 @@ export default {
         return {
             username: '',
             password: '',
-            remember: false
+            remember: false,
+            error: false
         }
     },
     methods: {
@@ -39,12 +42,13 @@ export default {
             }).then((res) => {
                 // check for correctness
                 if (res.data === false) {
-                    alert('Wrong password!')
+                    this.error = true
                 } else {
                   alert('Correct password')
                   console.log(res.data)
                   this.$store.dispatch("commitLoggedIn", true)
                   this.$store.dispatch("commitUserAccount", res.data)
+                  this.$router.back()
                 }
             }).catch((err) => {
                 alert(err)
@@ -52,7 +56,6 @@ export default {
             this.username = ''
             this.password = ''
             this.remember = false
-            this.$router.back()
         }
     }
 }
