@@ -11,6 +11,10 @@ import ChallengeContainer from '../components/ChallengeContainer.vue'
 import Login from '../components/Login.vue'
 import SignUp from '../components/SignUp.vue'
 import Account from '../components/Account.vue'
+import Admin from '../components/Admin.vue'
+import PostCreator from '../components/PostCreator.vue'
+import DocCreator from '../components/DocCreator.vue'
+import ChallengeCreator from '../components/ChallengeCreator.vue'
 
 Vue.use(VueRouter)
 
@@ -69,6 +73,25 @@ Vue.use(VueRouter)
     path: '/my-account',
     name: 'Account',
     component: Account
+  },
+  {
+      path: '/admin',
+      name: 'Admin',
+      component: Admin,
+      children: [
+          {
+              path: 'create-post',
+              component: PostCreator
+          },
+          {
+              path: 'create-doc',
+              component: DocCreator
+          },
+          {
+              path: 'create-challenge',
+              component: ChallengeCreator
+          }
+      ]
   }
 ]
 
