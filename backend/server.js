@@ -129,7 +129,22 @@ app.get('/api/login', (req,res) => {
     var auth = Buffer.from(req.headers.authorization.split(" ")[1], 'base64').toString();
     var username = auth.substring(0, auth.indexOf(":"))
     var password = auth.substring(auth.indexOf(":")+1, auth.length)
-    console.log(username, password)
+    Users.find({username: username}).then(data => {
+        bcrypt.compare(password, data[0].password).then((result) => {
+            if (result === true) {
+                res.send({
+                username: data[0].username, 
+                email: data[0].email, 
+                userId: data[0].userId, 
+                roles: data[0].roles
+            })
+            }
+            if (result === false){
+                res.send(false)
+            }
+            
+        })
+    })
 })
 
 app.post('/api/signup', (req,res) => {

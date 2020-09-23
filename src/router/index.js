@@ -10,6 +10,7 @@ import DocContainer from '../components/DocContainer.vue'
 import ChallengeContainer from '../components/ChallengeContainer.vue'
 import Login from '../components/Login.vue'
 import SignUp from '../components/SignUp.vue'
+import Account from '../components/Account.vue'
 
 Vue.use(VueRouter)
 
@@ -63,6 +64,11 @@ Vue.use(VueRouter)
       path: '/sign-up',
       name: 'SignUp',
       component: SignUp
+  },
+  {
+    path: '/my-account',
+    name: 'Account',
+    component: Account
   }
 ]
 

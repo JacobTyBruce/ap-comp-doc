@@ -1,0 +1,49 @@
+<template>
+    <v-container>
+        <v-row>
+            <v-col>
+                <div v-if="this.$store.state.loggedIn == false"><h1>Not logged in! Login here</h1><v-btn :to="{name: 'Login'}">Login</v-btn></div>
+                <v-container v-else>
+                    <v-row>
+                        <v-col class='text-center'><h1>{{account.username}}</h1></v-col>
+                    </v-row>
+                    <v-row>
+                        <v-col cols='4' class='text-center'>
+                            <v-card class='text-left'>
+                                <v-card-title>Account Info</v-card-title>
+                                <v-card-text>Username: <strong>{{account.username}}</strong></v-card-text>
+                                <v-card-text>Email: <strong>{{account.email}}</strong></v-card-text>
+                                <v-card-text>Roles: <strong v-for="(role,index) in account.roles" :key="index">{{role}}</strong></v-card-text>
+                                <v-card-text>User ID: <strong>{{account.userId}}</strong></v-card-text>
+                            </v-card>
+                            <v-btn class='ma-8' @click='logout()'>Logout</v-btn>
+                        </v-col>
+                        <v-col cols='8'>
+                            <v-card>
+                                <v-card-title>Dashboard</v-card-title>
+                            </v-card>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </v-col>
+        </v-row>
+    </v-container>
+</template>
+
+<script>
+export default {
+    name: 'Account',
+    data: function() {
+        return {
+            account: this.$store.state.userAccount
+        }
+    },
+    methods: {
+        logout() {
+            this.$store.dispatch("commitLoggedIn", false)
+            this.$store.dispatch("commitUserAccount", null)
+            this.$router.push({name: 'Home'})
+        }
+    }
+}
+</script>

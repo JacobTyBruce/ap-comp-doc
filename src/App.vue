@@ -64,7 +64,8 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>{{this.appName}}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-items><v-btn :to="{name:'Login'}" @click.stop="drawer = false">Login</v-btn></v-toolbar-items>
+      <v-toolbar-items v-if="this.$store.state.loggedIn"><v-btn :to="{name:'Account'}" @click.stop="drawer = false" fab><v-icon>mdi-account</v-icon></v-btn></v-toolbar-items>
+      <v-toolbar-items v-else><v-btn :to="{name:'Login'}" @click.stop="drawer = false">Login</v-btn></v-toolbar-items>
     </v-app-bar>
 
     <v-main>
@@ -89,28 +90,32 @@ export default {
     appName: 'Totally Non-conspicuous App'
   }),
   created() {
+    // set theme
     this.$vuetify.theme.dark = true;
 
+    // set logged in status -- make logic later with stored 'remember me'
+    this.$store.state.loggedIn = false
+
     // get docs
-    axios.get(`https://8081-a84fe534-1172-4d9c-8a40-4ff533376bf1.ws-us02.gitpod.io/api/get/docs/all`).then((response) => {
+    axios.get(`${process.env.VUE_APP_API_URL}/api/get/docs/all`).then((response) => {
         this.$store.dispatch('commitDocs', response.data )
     }).catch((error) => {
         alert(process.env.SERVER_URL)
     })
     // get challenges
-    axios.get(`https://8081-a84fe534-1172-4d9c-8a40-4ff533376bf1.ws-us02.gitpod.io/api/get/challenges/all`).then((response) => {
+    axios.get(`${process.env.VUE_APP_API_URL}/api/get/challenges/all`).then((response) => {
         this.$store.dispatch('commitChallenges', response.data )
     }).catch(() => {
         alert('error getting challenges')
     })
     // get users
-    axios.get(`https://8081-a84fe534-1172-4d9c-8a40-4ff533376bf1.ws-us02.gitpod.io/api/get/users/all`).then((response) => {
+    axios.get(`${process.env.VUE_APP_API_URL}/api/get/users/all`).then((response) => {
         this.$store.dispatch('commitUsers', response.data )
     }).catch(() => {
         alert('error getting users')
     })
     // get posts
-    axios.get(`https://8081-a84fe534-1172-4d9c-8a40-4ff533376bf1.ws-us02.gitpod.io/api/get/posts/all`).then((response) => {
+    axios.get(`${process.env.VUE_APP_API_URL}/api/get/posts/all`).then((response) => {
         this.$store.dispatch('commitPosts', response.data )
     }).catch(() => {
         alert('error getting posts')

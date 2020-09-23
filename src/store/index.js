@@ -9,7 +9,9 @@ export default new Vuex.Store({
     challenges: Array,
     users: Array,
     posts: Array,
-    currentDataSet: Object
+    currentDataSet: Object,
+    loggedIn: Boolean,
+    userAccount: Object
   },
   mutations: {
     populateDocs(state, arr) {
@@ -26,6 +28,12 @@ export default new Vuex.Store({
     },
     setCurrentDataSet(state, obj) {
       state.currentDataSet = obj
+    },
+    setLoggedIn(state, bool) {
+      state.loggedIn = bool
+    },
+    setUserAccount(state, obj) {
+      state.userAccount = obj
     }
   },
   actions: {
@@ -43,6 +51,12 @@ export default new Vuex.Store({
     },
     commitCurrentDataSet(context, obj) {
       context.commit("setCurrentDataSet", obj)
+    },
+    commitLoggedIn(context, bool) {
+      context.commit("setLoggedIn", bool)
+    },
+    commitUserAccount(context, obj) {
+      context.commit("setUserAccount", obj)
     }
   },
   modules: {

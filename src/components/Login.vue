@@ -31,17 +31,28 @@ export default {
     },
     methods: {
         login(user,pass) {
-            alert('Login')
-            this.$http.get('https://8081-a84fe534-1172-4d9c-8a40-4ff533376bf1.ws-us02.gitpod.io/api/login', {
+            this.$http.get(`${process.env.VUE_APP_API_URL}/api/login`, {
                 auth: {
                     username: user,
                     password: pass
                 }
             }).then((res) => {
-                alert(res.data)
+                // check for correctness
+                if (res.data === false) {
+                    alert('Wrong password!')
+                } else {
+                  alert('Correct password')
+                  console.log(res.data)
+                  this.$store.dispatch("commitLoggedIn", true)
+                  this.$store.dispatch("commitUserAccount", res.data)
+                }
             }).catch((err) => {
                 alert(err)
             })
+            this.username = ''
+            this.password = ''
+            this.remember = false
+            this.$router.back()
         }
     }
 }
