@@ -4,7 +4,7 @@
     <v-form>
       <v-text-field label="Title" v-model="title" />
       <v-textarea label="Text" v-model="text" />
-      <v-btn color='blue' v-on=""> Submit </v-btn>
+      <v-btn color='blue' @click="submitReview()"> Submit</v-btn>
     </v-form>
   </v-container>
 </template>
@@ -20,6 +20,7 @@ export default {
   },
   methods: {
       submitReview() {
+          alert('Subit Request Made')
           var request = {
               title: this.title,
               text: this.text,
@@ -29,6 +30,10 @@ export default {
           }
           this.$http.post(`${process.env.VUE_APP_API_URL}/api/post/posts`, request).then((data) => {
               alert(data);
+              this.title = "";
+              this.text = "";
+          }).catch((err) => {
+              alert(err)
           })
       }
   }

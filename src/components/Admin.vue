@@ -3,15 +3,9 @@
         <v-row fluid>
             <v-col cols='12'>
                 <v-btn to="/admin/create-post"> Posts </v-btn>
-            </v-col>
-        </v-row>
-        <v-row fluid>
-            <v-col cols='12'>
+                <v-spacer />
                 <v-btn to="/admin/create-doc"> Docs </v-btn>
-            </v-col>
-        </v-row>
-        <v-row fluid>
-            <v-col cols='12'>
+                <v-spacer />
                 <v-btn to="/admin/create-challenge"> Challenges </v-btn>
             </v-col>
         </v-row>

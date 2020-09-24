@@ -24,6 +24,7 @@ const challengeSchema = new mongoose.Schema({
   desc: String,
   challenge: String,
   text: String,
+  updated: Date,
   posted: Boolean
 });
 const usersSchema = new mongoose.Schema({
@@ -118,6 +119,7 @@ app.get("/api/get/:col/", (req, res) => {
 });
 
 app.post("/api/post/:col", (req, res) => {
+    console.log('post request')
   let collection = getCollection(req.params.col);
   if (collection == "None") {
     res.send(
@@ -130,6 +132,7 @@ app.post("/api/post/:col", (req, res) => {
       req.body.dateCreated = new Date().toJSON();
     }
     */
+   console.log(collection);
     collection.create(req.body).then((data) => {
       res.send(data);
     });

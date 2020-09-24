@@ -97,25 +97,25 @@ export default {
     this.$store.state.loggedIn = false
 
     // get docs
-    axios.get(`${process.env.VUE_APP_API_URL}/api/get/docs/all`).then((response) => {
+    axios.get(`${process.env.VUE_APP_API_URL}/api/get/docs/?posted=true`).then((response) => {
         this.$store.dispatch('commitDocs', response.data )
     }).catch((error) => {
-        alert(process.env.SERVER_URL)
+        alert('error getting docs')
     })
     // get challenges
-    axios.get(`${process.env.VUE_APP_API_URL}/api/get/challenges/all`).then((response) => {
+    axios.get(`${process.env.VUE_APP_API_URL}/api/get/challenges/?posted=true`).then((response) => {
         this.$store.dispatch('commitChallenges', response.data )
     }).catch(() => {
         alert('error getting challenges')
     })
-    // get users
+    // get users -- deprecate this later or change get request so no password is sent back, only relevant data
     axios.get(`${process.env.VUE_APP_API_URL}/api/get/users/all`).then((response) => {
         this.$store.dispatch('commitUsers', response.data )
     }).catch(() => {
         alert('error getting users')
     })
     // get posts
-    axios.get(`${process.env.VUE_APP_API_URL}/api/get/posts/all`).then((response) => {
+    axios.get(`${process.env.VUE_APP_API_URL}/api/get/posts/?posted=true`).then((response) => {
         this.$store.dispatch('commitPosts', response.data )
     }).catch(() => {
         alert('error getting posts')
