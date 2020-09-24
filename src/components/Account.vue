@@ -21,7 +21,7 @@
                         <v-col cols='8'>
                             <v-card>
                                 <v-card-title>Dashboard</v-card-title>
-                                <v-btn v-if="account.roles.includes('admin')" color='orange'>Go to Admin Console</v-btn>
+                                <v-btn v-if="account.roles.includes('admin')" color='orange' :to="{name: 'Admin'}">Go to Admin Console</v-btn>
                             </v-card>
                         </v-col>
                     </v-row>

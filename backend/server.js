@@ -17,12 +17,14 @@ const docSchema = new mongoose.Schema({
   ref: Object,
   dateUpdated: Date,
   tags: Array,
+  posted: Boolean
 });
 const challengeSchema = new mongoose.Schema({
   title: String,
   desc: String,
   challenge: String,
   text: String,
+  posted: Boolean
 });
 const usersSchema = new mongoose.Schema({
   username: String,
@@ -36,6 +38,7 @@ const postSchema = new mongoose.Schema({
   text: String,
   postedBy: String,
   dateCreated: Date,
+  posted: Boolean
 });
 
 // generate model
@@ -121,9 +124,12 @@ app.post("/api/post/:col", (req, res) => {
       "Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col
     );
   } else {
+    // redundent as front end does this 
+    /*
     if (collection == Posts) {
       req.body.dateCreated = new Date().toJSON();
     }
+    */
     collection.create(req.body).then((data) => {
       res.send(data);
     });
