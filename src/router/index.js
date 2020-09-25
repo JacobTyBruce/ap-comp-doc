@@ -15,6 +15,7 @@ import Admin from '../components/Admin.vue'
 import PostCreator from '../components/PostCreator.vue'
 import DocCreator from '../components/DocCreator.vue'
 import ChallengeCreator from '../components/ChallengeCreator.vue'
+import Review from '../components/Review.vue';
 
 Vue.use(VueRouter)
 
@@ -90,6 +91,10 @@ Vue.use(VueRouter)
           {
               path: 'create-challenge',
               component: ChallengeCreator
+          },
+          {
+              path: 'review',
+              component: Review
           }
       ]
   }

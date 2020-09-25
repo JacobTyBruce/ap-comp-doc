@@ -88,6 +88,8 @@ function getCollection(urlReq) {
   return param;
 }
 
+// ------ CAN FIX API BY FILTERING RESULTS IN .find() BY PASSING SECOND OBJECT OF PROPS TO RETURN ----------
+
 app.get("/api/get/:col/all", (req, res) => {
   let collection = getCollection(req.params.col);
   if (collection == "None") {
@@ -102,6 +104,7 @@ app.get("/api/get/:col/all", (req, res) => {
 });
 
 app.get("/api/get/:col/", (req, res) => {
+    console.log('GET request received')
   let collection = getCollection(req.params.col);
   let urlQuery = req.query;
   if (collection == "None") {
@@ -111,7 +114,9 @@ app.get("/api/get/:col/", (req, res) => {
   } else {
     collection.find(urlQuery).then((data) => {
       res.send(data);
+      console.log(typeof data)
     });
+    
   }
 });
 
