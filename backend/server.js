@@ -114,7 +114,6 @@ app.get("/api/get/:col/", (req, res) => {
   } else {
     collection.find(urlQuery).then((data) => {
       res.send(data);
-      console.log(typeof data)
     });
     
   }
@@ -135,6 +134,26 @@ app.post("/api/post/:col", (req, res) => {
     });
   }
 });
+
+app.patch("/api/patch/:col/", (req,res) => {
+    let collection = getCollection(req.params.col);
+    if (collection == "None") {
+    res.send(
+      "Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col
+    );
+    } else {
+        // check if all query is supplied, if not look in body
+        if (req.query == 'all') {
+            console.log('All')
+            console.log(req.body)
+            res.send('All')
+        } else {
+            console.log('Not all')
+            console.log(req.body)
+            res.send('Not All')
+        }
+    }
+}) 
 
 app.delete("/api/delete/:col", (req, res) => {
   let collection = getCollection(req.params.col);

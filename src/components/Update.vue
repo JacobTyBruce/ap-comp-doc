@@ -22,8 +22,11 @@
               label="Values to replace with"
               v-model="replaceValsWith"
             />
+            <v-checkbox label='Replace all Values?' v-model='all' />
             <v-btn color='blue' @click='findAndReplace()'> Search and Replace </v-btn>
           </v-form>
+          <v-divider />
+            {{result}}
         </v-card>
       </v-col>
     </v-row>
@@ -39,20 +42,37 @@ export default {
       choice: null,
       searchForProps: "",
       searchForVals: "",
-      replacePropsWith,
-      replaceValsWith,
+      replacePropsWith: "",
+      replaceValsWith: "",
+      all: false,
+      result: null
     };
   },
   methods: {
       findAndReplace() {
+          alert('Find and Replace')
+          // get array of props and vals
           var searchPropsArray = this.searchForProps.split(',')
           var searchValsArray = this.searchForVals.split(',')
-          var urlQuery = `?${searchPropsArray[0]}=${searchValsArray[0]}`
-          alert(urlQuery)
-          for (let i = 1; i < searchForProps.length; i++) {
-              urlQuery += `&&${searchPropsArray[i]}=${searchValsArray[i]}`
+          alert('Preparing body')
+          // body for patch request -- to match
+          var patchBody = {}
+          // for loop to populate object with props and vals
+          for (let i = 0; i < searchPropsArray.length; i++) {
+              let prop = searchPropsArray[i]
+              patchBody.prop = searchValsArray[i]
           }
-          alert(urlQuery)
+          alert(patchBody)
+          // url needed for request
+          var urlReq = `${process.env.VUE_APP_API_URL}/api/update/${this.choice}`
+          alert(urlReq)
+          // if this update all is true, append true to query
+          if (this.all == true) {urlReq += '/?all=true'}
+          alert(urlReq)
+          // call request
+          this.$http.patch(urlReq, patchBody).then((result) => {
+              alert(result)
+          })
       }
   },
 };
