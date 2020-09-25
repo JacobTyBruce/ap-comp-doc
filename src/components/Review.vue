@@ -1,8 +1,16 @@
 <<template>
-    <div>
+    <v-container>
+    <v-row>
         <v-btn @click="fetch(); this.reviewItems = {name: 'gay'}"> Fetch </v-btn>
-       {{this.reviewItems}} 
-    </div>
+    </v-row>
+    <v-row>
+        {{this.reviewItems}}
+        <v-card v-for="items in this.reviewItems" :key="items._id">
+            <v-card-title>{{items.title}}</v-card-title>
+        </v-card>
+    </v-row>
+       
+    </v-container>
 </template>
 
 <<script>
@@ -17,24 +25,23 @@ export default {
         fetch() {
             console.log('fetched')
             // get docs
-            axios.get(`${process.env.VUE_APP_API_URL}/api/get/docs/?posted=false`).then((response) => {
-                alert(response, typeof response)
-                this.reviewItems.push(response)
+            this.$http.get(`${process.env.VUE_APP_API_URL}/api/get/docs/?posted=false`).then((response) => {
+                this.reviewItems.push(response.data)
             }).catch((error) => {
                 alert("error getting docs");
-            });/*
+            });
             // get challenges
-            axios.get(`${process.env.VUE_APP_API_URL}/api/get/challenges/?posted=false`).then((response) => {
+            this.$http.get(`${process.env.VUE_APP_API_URL}/api/get/challenges/?posted=false`).then((response) => {
                 this.reviewItems = this.reviewItems.concat(response)
             }).catch(() => {
                 alert("error getting challenges");
             });
             // get posts
-            axios.get(`${process.env.VUE_APP_API_URL}/api/get/posts/?posted=false`).then((response) => {
+            this.$http.get(`${process.env.VUE_APP_API_URL}/api/get/posts/?posted=false`).then((response) => {
                 this.reviewItems = this.reviewItems.concat(response)
             }).catch(() => {
                 alert("error getting posts");
-            });*/
+            });
         }
     },
 }
