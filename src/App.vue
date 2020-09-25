@@ -64,8 +64,14 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>{{this.appName}}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-items v-if="this.$store.state.loggedIn"><v-btn :to="{name:'Account'}" @click.stop="drawer = false" fab><v-icon>mdi-account</v-icon></v-btn></v-toolbar-items>
-      <v-toolbar-items v-else><v-btn :to="{name:'Login'}" @click.stop="drawer = false">Login</v-btn></v-toolbar-items>
+      <v-toolbar-items v-if="this.$store.state.loggedIn">
+        <v-btn :to="{name:'Account'}" @click.stop="drawer = false" fab>
+          <v-icon>mdi-account</v-icon>
+        </v-btn>
+      </v-toolbar-items>
+      <v-toolbar-items v-else>
+        <v-btn :to="{name:'Login'}" @click.stop="drawer = false">Login</v-btn>
+      </v-toolbar-items>
     </v-app-bar>
 
     <v-main>
@@ -79,7 +85,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 
 export default {
   props: {
@@ -87,40 +93,81 @@ export default {
   },
   data: () => ({
     drawer: null,
-    appName: 'Totally Non-conspicuous App'
+    appName: "Totally Non-conspicuous App",
   }),
   created() {
     // set theme
     this.$vuetify.theme.dark = true;
 
     // set logged in status -- make logic later with stored 'remember me'
-    this.$store.state.loggedIn = false
+    this.$store.state.loggedIn = false;
 
     // get docs
-    axios.get(`${process.env.VUE_APP_API_URL}/api/get/docs/?posted=true`).then((response) => {
-        this.$store.dispatch('commitDocs', response.data )
-    }).catch((error) => {
-        alert('error getting docs')
-    })
+    axios
+      .get(`${process.env.VUE_APP_API_URL}/api/get/docs/?posted=true`)
+      .then((response) => {
+        this.$store.dispatch("commitDocs", response.data);
+      })
+      .catch((error) => {
+        alert("error getting docs");
+      });
     // get challenges
-    axios.get(`${process.env.VUE_APP_API_URL}/api/get/challenges/?posted=true`).then((response) => {
-        this.$store.dispatch('commitChallenges', response.data )
-    }).catch(() => {
-        alert('error getting challenges')
-    })
+    axios
+      .get(`${process.env.VUE_APP_API_URL}/api/get/challenges/?posted=true`)
+      .then((response) => {
+        this.$store.dispatch("commitChallenges", response.data);
+      })
+      .catch(() => {
+        alert("error getting challenges");
+      });
     // get users -- deprecate this later or change get request so no password is sent back, only relevant data
-    axios.get(`${process.env.VUE_APP_API_URL}/api/get/users/all`).then((response) => {
-        this.$store.dispatch('commitUsers', response.data )
-    }).catch(() => {
-        alert('error getting users')
-    })
+    axios
+      .get(`${process.env.VUE_APP_API_URL}/api/get/users/all`)
+      .then((response) => {
+        this.$store.dispatch("commitUsers", response.data);
+      })
+      .catch(() => {
+        alert("error getting users");
+      });
     // get posts
-    axios.get(`${process.env.VUE_APP_API_URL}/api/get/posts/?posted=true`).then((response) => {
-        this.$store.dispatch('commitPosts', response.data )
-    }).catch(() => {
-        alert('error getting posts')
-    })
-    
-  }
+    axios
+      .get(`${process.env.VUE_APP_API_URL}/api/get/posts/?posted=true`)
+      .then((response) => {
+        this.$store.dispatch("commitPosts", response.data);
+      })
+      .catch(() => {
+        alert("error getting posts");
+      });
+    // check if login exists
+    var username;
+    var password;
+    if (
+      window.localStorage.getItem("username") != null &&
+      window.localStorage.getItem("password") != null
+    ) {
+      username = window.localStorage.getItem("username");
+      password = window.localStorage.getItem("password");
+    }
+    this.$http
+      .get(`${process.env.VUE_APP_API_URL}/api/login`, {
+        auth: {
+          username: username,
+          password: password,
+        },
+      })
+      .then((res) => {
+        // check for correctness
+        if (res.data === false) {
+          alert('Error Logining In')
+        } else {
+          console.log(res.data);
+          this.$store.dispatch("commitLoggedIn", true);
+          this.$store.dispatch("commitUserAccount", res.data);;
+        }
+      })
+      .catch((err) => {
+        alert(err);
+      });
+  },
 };
 </script>

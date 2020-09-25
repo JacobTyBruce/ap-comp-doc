@@ -1,6 +1,6 @@
 <<template>
   <v-container>
-    <h1>Create a Post</h1>
+    <h1>Create a Doc</h1>
     <v-form>
       <v-text-field label="Title" v-model="title" />
       <v-textarea label="Text" v-model="text" />

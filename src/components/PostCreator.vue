@@ -4,6 +4,7 @@
     <v-form>
       <v-text-field label="Title" v-model="title" />
       <v-textarea label="Text" v-model="text" />
+      <v-checkbox label="Post Immediately?" v-model="post" />
       <v-btn color='blue' @click="submitReview()"> Submit</v-btn>
     </v-form>
   </v-container>
@@ -16,6 +17,7 @@ export default {
     return {
       title: "",
       text: "",
+      post: false
     };
   },
   methods: {
@@ -25,9 +27,11 @@ export default {
               title: this.title,
               text: this.text,
               postedBy: this.$store.state.userAccount.username,
-              dateCreated: JSON.stringify(Date.now()),
               posted: false
           }
+          
+          if (this.post == true) {request.posted = true}
+
           this.$http.post(`${process.env.VUE_APP_API_URL}/api/post/posts`, request).then((data) => {
               alert(data);
               this.title = "";

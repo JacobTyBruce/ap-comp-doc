@@ -44,11 +44,12 @@ export default {
                 if (res.data === false) {
                     this.error = true
                 } else {
-                  alert('Correct password')
                   console.log(res.data)
                   this.$store.dispatch("commitLoggedIn", true)
                   this.$store.dispatch("commitUserAccount", res.data)
                   this.$router.back()
+                  window.localStorage.setItem('username', user)
+                  window.localStorage.setItem('password', pass)
                 }
             }).catch((err) => {
                 alert(err)

@@ -30,7 +30,7 @@ export default {
               desc: this.desc,
               challenge: this.challenge,
               text: this.text,
-              updated: JSON.stringify(new Date().now),
+              dateUpdated: JSON.stringify(new Date().now),
               posted: false
           }
           this.$http.post(`${process.env.VUE_APP_API_URL}/api/post/challenges`, request).then((data) => {

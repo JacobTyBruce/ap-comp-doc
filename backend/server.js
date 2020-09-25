@@ -15,32 +15,29 @@ const docSchema = new mongoose.Schema({
   desc: String,
   text: String,
   ref: Object,
-  dateUpdated: Date,
   tags: Array,
   posted: Boolean
-});
+}, { timestamps: true });
 const challengeSchema = new mongoose.Schema({
   title: String,
   desc: String,
   challenge: String,
   text: String,
-  updated: Date,
   posted: Boolean
-});
+}, { timestamps: true });
 const usersSchema = new mongoose.Schema({
   username: String,
   email: String,
   password: String,
   userId: String,
   roles: Array,
-});
+}, { timestamps: true });
 const postSchema = new mongoose.Schema({
   title: String,
   text: String,
   postedBy: String,
-  dateCreated: Date,
   posted: Boolean
-});
+}, { timestamps: true });
 
 // generate model
 // model = collection !!!!!!!!!!!
@@ -126,14 +123,9 @@ app.post("/api/post/:col", (req, res) => {
       "Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col
     );
   } else {
-    // redundent as front end does this 
-    /*
-    if (collection == Posts) {
-      req.body.dateCreated = new Date().toJSON();
-    }
-    */
-   console.log(collection);
     collection.create(req.body).then((data) => {
+      console.log(data);
+      console.log(data.createdAt);
       res.send(data);
     });
   }
