@@ -14,7 +14,7 @@ const docSchema = new mongoose.Schema({
   title: String,
   desc: String,
   text: String,
-  ref: Object,
+  // implement later ref: Object,
   tags: Array,
   posted: Boolean
 }, { timestamps: true });

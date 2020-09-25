@@ -5,14 +5,17 @@
     </v-row>
     <v-row>
       <v-card>
-        <v-card-title>{{ this.challegeContent.title }}</v-card-title>
-        <v-card-subtitle>{{ this.challegeContent.desc }}</v-card-subtitle>
+        <v-card-title>{{ this.challengeContent.title }}</v-card-title>
+        <v-card-subtitle>{{ this.challengeContent.desc }}</v-card-subtitle>
         <v-divider />
-        <pre v-html="this.challegeContent.challenge" class="ma-4"></pre>
+        <pre v-html="this.challengeContent.challenge" class="ma-4"></pre>
         <v-divider />
         <v-card-title> Explaination & Help </v-card-title>
-        <v-card-text v-html="this.challegeContent.text"></v-card-text>
+        <v-card-text v-html="this.challengeContent.text"></v-card-text>
       </v-card>
+    </v-row>
+    <v-row>
+      <h2> Last Update: {{new Date(this.challengeContent.updatedAt).toLocaleString('en-US')}} </h2>
     </v-row>
   </v-container>
 </template>
@@ -22,7 +25,7 @@ export default {
   name: "DocContainer",
   data: function() {
     return {
-      challegeContent: this.$store.state.currentDataSet,
+      challengeContent: this.$store.state.currentDataSet,
     };
   },
   beforeCreate() {

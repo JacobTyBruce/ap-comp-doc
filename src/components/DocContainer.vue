@@ -3,10 +3,9 @@
     <v-card>
       <v-card-title>{{this.docContent.title}}</v-card-title>
       <v-card-subtitle>{{this.docContent.desc}}</v-card-subtitle>
-    </v-card>
     <v-divider></v-divider>
-    <v-card>
-      <v-card-text>{{this.docContent.text}}</v-card-text>
+      <v-card-text v-html="this.docContent.text"></v-card-text>
+      <v-card-subtitle><strong v-for="(tag,index) in this.docContent.tags" :key='index' class='ma-2'> {{tag}} </strong></v-card-subtitle>
     </v-card>
   </v-container>
 </template>

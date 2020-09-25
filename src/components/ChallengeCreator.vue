@@ -5,7 +5,8 @@
       <v-text-field label="Title" v-model="title" />
       <v-textarea label='Description' v-model="desc" />
       <v-textarea label="Challenge" v-model="challenge" />
-      <v-textarea label="Text/Explaination" v-model="text" />
+      <v-textarea label="Text/Explanation" v-model="text" />
+      <v-checkbox label="Post Immediately?" v-model="post" />
       <v-btn color='blue' @click="submitReview()"> Submit</v-btn>
     </v-form>
   </v-container>
@@ -19,7 +20,8 @@ export default {
       title: "",
       desc: "",
       challenge: "",
-      text: ""
+      text: "",
+      post: false
     };
   },
   methods: {
@@ -30,8 +32,7 @@ export default {
               desc: this.desc,
               challenge: this.challenge,
               text: this.text,
-              dateUpdated: JSON.stringify(new Date().now),
-              posted: false
+              posted: this.post
           }
           this.$http.post(`${process.env.VUE_APP_API_URL}/api/post/challenges`, request).then((data) => {
               alert(data);
@@ -39,7 +40,7 @@ export default {
               this.text= ""
               this.desc = ""
               this.challenge = ""
-              this.text = ""
+              this.post = false
           }).catch((err) => {
               alert(err)
           })

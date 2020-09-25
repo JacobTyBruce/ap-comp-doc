@@ -7,7 +7,7 @@
           <v-card width='60%'>
             <v-card-title>{{post.title}}</v-card-title>
             <v-card-text v-html="post.text.substring(0,256)"></v-card-text>
-            <v-card-subtitle>Posted by <strong>{{post.postedBy}}</strong> at {{post.createdAt.toLocaleString()}}</v-card-subtitle>
+            <v-card-subtitle>Posted by <strong>{{post.postedBy}}</strong> at {{new Date(post.createdAt).toLocaleString('en-US')}}</v-card-subtitle>
           </v-card>
     </v-row>
   </v-container>
