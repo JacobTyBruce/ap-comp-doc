@@ -15,7 +15,8 @@ import Admin from '../components/Admin.vue'
 import PostCreator from '../components/PostCreator.vue'
 import DocCreator from '../components/DocCreator.vue'
 import ChallengeCreator from '../components/ChallengeCreator.vue'
-import Review from '../components/Review.vue';
+import Review from '../components/Review.vue'
+import Update from '../components/Update.vue'
 
 Vue.use(VueRouter)
 
@@ -95,6 +96,10 @@ Vue.use(VueRouter)
           {
               path: 'review',
               component: Review
+          },
+          {
+              path: 'update',
+              component: Update
           }
       ]
   }
