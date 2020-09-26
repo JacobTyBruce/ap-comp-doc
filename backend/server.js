@@ -135,7 +135,8 @@ app.post("/api/post/:col", (req, res) => {
   }
 });
 
-app.patch("/api/patch/:col/", (req,res) => {
+app.patch("/api/update/:col/", (req,res) => {
+  console.log('Path Request')
     let collection = getCollection(req.params.col);
     if (collection == "None") {
     res.send(
@@ -143,14 +144,16 @@ app.patch("/api/patch/:col/", (req,res) => {
     );
     } else {
         // check if all query is supplied, if not look in body
-        if (req.query == 'all') {
+        if (req.query.hasOwnProperty('all') == true) {
             console.log('All')
-            console.log(req.body)
-            res.send('All')
+            collection.updateMany(req.body.query, req.body.replace, {new: true}).then((err, doc) => {
+                res.send('All Updated')
+            })
         } else {
             console.log('Not all')
-            console.log(req.body)
-            res.send('Not All')
+            collection.findOneAndUpdate(req.body.query, req.body.replace, {new: true}, (err, doc) => {      
+                res.send(doc)
+            })
         }
     }
 }) 

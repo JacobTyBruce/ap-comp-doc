@@ -3,7 +3,7 @@
   <v-row class='mb-4'>
       <v-btn @click="$router.back()" class='ml-4' color='orange'> Back </v-btn>
     </v-row>
-    <v-row>
+    <v-row justify="center">
     <v-card>
       <v-card-title>{{this.docContent.title}}</v-card-title>
       <v-card-subtitle>{{this.docContent.desc}}</v-card-subtitle>

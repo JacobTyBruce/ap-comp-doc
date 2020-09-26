@@ -3,8 +3,8 @@
     <v-row class='mb-4'>
       <v-btn @click="$router.back()" class='ml-4' color='orange'> Back </v-btn>
     </v-row>
-    <v-row>
-      <v-card>
+    <v-row justify="center">
+      <v-card min-width="60%">
         <v-card-title>{{ this.challengeContent.title }}</v-card-title>
         <v-card-subtitle>{{ this.challengeContent.desc }}</v-card-subtitle>
         <v-divider />
@@ -14,8 +14,8 @@
         <v-card-text v-html="this.challengeContent.text"></v-card-text>
       </v-card>
     </v-row>
-    <v-row>
-      <h2> Last Update: {{new Date(this.challengeContent.updatedAt).toLocaleString('en-US')}} </h2>
+    <v-row justify="center">
+      <p> Last Update: {{new Date(this.challengeContent.updatedAt).toLocaleString('en-US')}} </p>
     </v-row>
   </v-container>
 </template>

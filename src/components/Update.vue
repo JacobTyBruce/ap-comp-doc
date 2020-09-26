@@ -50,28 +50,36 @@ export default {
   },
   methods: {
       findAndReplace() {
-          alert('Find and Replace')
           // get array of props and vals
           var searchPropsArray = this.searchForProps.split(',')
           var searchValsArray = this.searchForVals.split(',')
-          alert('Preparing body')
+          var replacePropsArray = this.replacePropsWith.split(',')
+          var replaceValsArray = this.replaceValsWith.split(',')
           // body for patch request -- to match
-          var patchBody = {}
-          // for loop to populate object with props and vals
+          var patchBody = {
+            query: {},
+            replace: {}
+          }
+          // for loop to populate query object with props and vals
           for (let i = 0; i < searchPropsArray.length; i++) {
               let prop = searchPropsArray[i]
-              patchBody.prop = searchValsArray[i]
+              patchBody.query[prop] = searchValsArray[i]
           }
-          alert(patchBody)
+          // for loop to populate replace object with props and vals
+          for (let i = 0; i < replacePropsArray.length; i++) {
+              let prop = replacePropsArray[i]
+              patchBody.replace[prop] = replaceValsArray[i]
+          }
+          console.log(patchBody)
           // url needed for request
-          var urlReq = `${process.env.VUE_APP_API_URL}/api/update/${this.choice}`
-          alert(urlReq)
+          var urlReq = `${process.env.VUE_APP_API_URL}/api/update/${this.choice.toLowerCase()}/`
           // if this update all is true, append true to query
-          if (this.all == true) {urlReq += '/?all=true'}
+          if (this.all == true) {urlReq += '?all=true'}
           alert(urlReq)
           // call request
           this.$http.patch(urlReq, patchBody).then((result) => {
-              alert(result)
+              console.log(result)
+              this.result = result.data
           })
       }
   },

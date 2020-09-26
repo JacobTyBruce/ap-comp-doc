@@ -8,6 +8,7 @@ import Posts from '../views/Posts.vue'
 import Help from '../views/Help.vue'
 import DocContainer from '../components/DocContainer.vue'
 import ChallengeContainer from '../components/ChallengeContainer.vue'
+import PostContainer from '../components/PostContainer.vue'
 import Login from '../components/Login.vue'
 import SignUp from '../components/SignUp.vue'
 import Account from '../components/Account.vue'
@@ -55,6 +56,11 @@ Vue.use(VueRouter)
     path: '/community/posts',
     name: 'Posts',
     component: Posts
+  },
+  {
+    path: '/community/posts/:id',
+    name: 'PostContainer',
+    component: PostContainer
   },
   {
     path: '/help',
