@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import store from '../store'
+import axios from 'axios'
 import Home from '../views/Home.vue'
 import Docs from '../views/Docs.vue'
 import Challenges from '../views/Challenges.vue'
@@ -86,6 +88,19 @@ Vue.use(VueRouter)
       path: '/admin',
       name: 'Admin',
       component: Admin,
+      beforeEnter: (to, from, next) => {
+        setTimeout(() => {console.log('BeforeEnter')
+        var account = store.state.userAccount
+        axios.get(`${process.env.VUE_APP_API_URL}/api/get/users/?userId=${account.userId}`).then(result => {
+          if (result.data[0].roles.includes('admin')) {
+            next()
+          } else {
+            next({name: 'Home'})
+            alert('Do not have permission!')
+          }
+          
+        })}, 1000)
+      },
       children: [
           {
               path: 'create-post',

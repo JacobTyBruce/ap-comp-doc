@@ -44,6 +44,8 @@ export default {
             this.$store.dispatch("commitLoggedIn", false)
             this.$store.dispatch("commitUserAccount", null)
             this.$router.push({name: 'Home'})
+            window.localStorage.removeItem('username')
+            window.localStorage.removeItem('password')
         }
     }
 }
