@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "dev": "nodemon backend/server.js"
+    "dev": "nodemon backend/server.js",
+    "auth": "nodemon backend/auth.js"
   },
   "dependencies": {
     "@mdi/font": "^5.5.55",

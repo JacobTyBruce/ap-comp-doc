@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const axios =  require('axios');
 
 const dbName = process.env.DB_NAME;
 const dbUser = process.env.DB_USER;
@@ -182,12 +183,24 @@ app.get("/api/login", (req, res) => {
   Users.find({ username: username }).then((data) => {
     bcrypt.compare(password, data[0].password).then((result) => {
       if (result === true) {
-        res.send({
-          username: data[0].username,
-          email: data[0].email,
-          userId: data[0].userId,
-          roles: data[0].roles,
-        });
+          // get refresh
+          axios.get(`${process.env.AUTH_SERVER_URL}/get-refresh`).then(refreshTokenRes => {
+              // get access
+              axios.post(`${process.env.AUTH_SERVER_URL}/get-access`, {}, {headers: {
+                  'Authorization': `Bearer ${refreshTokenRes.data}`
+              }}).then(accessTokenRes => {
+                 res.send({
+                    username: data[0].username,
+                    email: data[0].email,
+                    userId: data[0].userId,
+                    roles: data[0].roles,
+                    refresh: refreshTokenRes.data,
+                    access: accessTokenRes.data
+                }); 
+              }).catch(err => {res.send(err)})
+              
+          }).catch(err => {res.send(err)})
+        
       }
       if (result === false) {
         res.send(false);
