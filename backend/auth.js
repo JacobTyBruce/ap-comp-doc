@@ -17,15 +17,13 @@ app.use(cors());
 app.get('/get-refresh', (req,res) => {
     var token = jwt.sign({name: 'Refresh'}, process.env.AUTH_SERVER_SECRET, { expiresIn: '30m' })
     res.send(token)
+    console.log(token)
     console.log('Refresh Token Sent')
 })
 
-app.post('/get-access', (req,res) => {
+app.get('/get-access', (req,res) => {
     // check refresh -- change to check cookie as this is where it will be sent in the future
-    var accessToken = Buffer.from(
-    req.headers.authorization.split(" ")[1],
-    "base64"
-  ).toString();
+    var accessToken = req.headers.authorization.split(" ")[1]
   console.log(accessToken)
     jwt.verify(accessToken, process.env.AUTH_SERVER_SECRET, (err, decoded) => {
       if (err) {

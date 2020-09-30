@@ -38,7 +38,8 @@ export default {
                 auth: {
                     username: user,
                     password: pass
-                }
+                },
+                withCredentials: true
             }).then((res) => {
                 // check for correctness
                 if (res.data === false) {
@@ -48,6 +49,8 @@ export default {
                   this.$store.dispatch("commitLoggedIn", true)
                   this.$store.dispatch("commitUserAccount", res.data)
                   this.$router.back()
+                  window.localStorage.setItem('token', res.data.access)
+                  // remove later
                   window.localStorage.setItem('username', user)
                   window.localStorage.setItem('password', pass)
                 }

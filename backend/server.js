@@ -61,7 +61,9 @@ db.on("error", console.error.bind(console, "connection error:"));
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({
+  origin: true
+}));
 
 // mapping function for URL and collection
 function getCollection(urlReq) {
@@ -186,15 +188,16 @@ app.get("/api/login", (req, res) => {
           // get refresh
           axios.get(`${process.env.AUTH_SERVER_URL}/get-refresh`).then(refreshTokenRes => {
               // get access
-              axios.post(`${process.env.AUTH_SERVER_URL}/get-access`, {}, {headers: {
+              axios.get(`${process.env.AUTH_SERVER_URL}/get-access`, {headers: {
                   'Authorization': `Bearer ${refreshTokenRes.data}`
               }}).then(accessTokenRes => {
+                console.log(refreshTokenRes.data)
+                res.cookie('token', refreshTokenRes.data, {httpOnly: true})
                  res.send({
                     username: data[0].username,
                     email: data[0].email,
                     userId: data[0].userId,
                     roles: data[0].roles,
-                    refresh: refreshTokenRes.data,
                     access: accessTokenRes.data
                 }); 
               }).catch(err => {res.send(err)})
