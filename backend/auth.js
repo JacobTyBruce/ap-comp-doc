@@ -29,9 +29,9 @@ app.post('/get-refresh', (req,res) => {
     console.log('Refresh Token Sent')
 })
 
-app.get('/get-access', (req,res) => {
+app.post('/get-access', (req,res) => {
     // check refresh -- change to check cookie as this is where it will be sent in the future
-    var accessToken = req.headers.authorization.split(" ")[1]
+    var accessToken = req.body.token
   console.log(accessToken)
     jwt.verify(accessToken, process.env.AUTH_SERVER_SECRET, (err, decoded) => {
       if (err) {

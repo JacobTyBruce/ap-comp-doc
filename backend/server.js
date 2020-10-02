@@ -54,9 +54,6 @@ const postSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const refreshSchema = new mongoose.Schema({
-  token: String,
-});
 // generate model
 // model = collection !!!!!!!!!!!
 // When searching use below Class Variable to search ie. Use route param as this
@@ -65,7 +62,6 @@ const Users = mongoose.model("User", usersSchema);
 const Challenges = mongoose.model("Challenge", challengeSchema);
 const Docs = mongoose.model("Doc", docSchema);
 const Posts = mongoose.model("Post", postSchema);
-const Refresh = mongoose.model("ValidRefresh", refreshSchema);
 // string to connect to mongodb, use .env for variables before uploading
 const mongo = `mongodb+srv://${dbUser}:${dbPass}@cluster0.gczfd.mongodb.net/${dbName}?retryWrites=true&w=majority`;
 // connect
@@ -76,19 +72,37 @@ const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 
 // token verification middleware
-const verifyToken = async function verifyToken(req,res,next) {
-    var accessToken = req.headers.authorization.split(" ")[1]
-    var accessVerification = await axios.post(`${AUTH_SERVER_URL}/verify`, {token: accessToken})
-    if (accessVerification.status == 200) {
+const verifyToken = function verifyToken(req, res, next) {
+  // get access token from header
+  var accessToken = req.headers.authorization.split(" ")[1]
+  console.log('About to send access for verification')
+  console.log(req.cookies)
+  console.log(req.cookies.token)
+  // check if access is good
+  axios.post(`${process.env.AUTH_SERVER_URL}/verify-token`, { token: accessToken }).then(accessRes => {
+    // fires if access jwt is good
+    next()
+  }).catch(accessErr => {
+    // fires if access jwt is bad
+    // checks for refresh token, if present, fires to get another access, if not fails with status 401 not auth
+
+    // if cookie/refresh token is present, this fires
+    if (Object.prototype.hasOwnProperty.call(req.cookies, "token")) {
+      console.log('Getting new Access')
+      axios.post(`${process.env.AUTH_SERVER_URL}/get-access`, { token: req.cookies.token }).then(newAccess => {
+        res.body.newAccess = newAccess.data
         next()
+      }).catch(err => {
+        // catches arbiturary error
+        console.log('Error getting new access')
+        console.log(err.data)
+        res.send('Arbiturary Error with request, please try again', 400)
+      })
     } else {
-        var refreshVerification = await axios.post(`${AUTH_SERVER_URL}/verify`, {token: req.cookies.token})
-        if (refreshVerification.status == 200) {
-            next()
-        } else {
-            res.send('Invalid Credentials, please try logging in again', 401)
-        }
+      // if no cookies/refresh token is present, this fires
+      res.send('Not authorized to use this resource, login to try again', 401)
     }
+  })
 }
 
 const app = express();
@@ -137,8 +151,16 @@ app.get("/api/get/:col/all", (req, res) => {
       "Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col
     );
   } else {
-    collection.find().then((data) => {
-      res.send(data);
+    collection.find().then(function(data) {
+      console.log(data)
+      let newData = data
+        newData.forEach(item => {
+          console.log(item)
+          delete item.password
+          delete item.sessionToken
+          console.log('Why no work')
+        })
+      res.send(newData);
     });
   }
 });
@@ -146,13 +168,13 @@ app.get("/api/get/:col/all", (req, res) => {
 app.get("/api/get/:col/", (req, res) => {
   console.log("GET request received");
   let collection = getCollection(req.params.col);
-  let urlQuery = req.query;
+  let query = req.query;
   if (collection == "None") {
     res.send(
       "Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col
     );
   } else {
-    collection.find(urlQuery).then((data) => {
+    collection.find(query).then((data) => {
       res.send(data);
     });
   }
@@ -221,39 +243,41 @@ app.get("/api/login", async (req, res) => {
   console.log("Login recieved");
   console.log(req.cookies);
   if (Object.prototype.hasOwnProperty.call(req.cookies, "token")) {
+    console.log('Has Cookies')
     axios
       .post(`${process.env.AUTH_SERVER_URL}/decode`, {
         token: req.cookies.token,
       })
       .then((decoded) => {
-          console.log(decoded.data)
+        console.log(decoded.data)
         axios
-          .get(`${process.env.AUTH_SERVER_URL}/get-access`, {
-            headers: {
-              Authorization: `Bearer ${req.cookies.token}`,
-            },
+          .post(`${process.env.AUTH_SERVER_URL}/get-access`, {
+            token: req.cookies.token
           })
           .then(async (access) => {
-            var acc = await Users.find({username: decoded.data.username, userId: decoded.data.userId})
-                console.log(acc)
-                res.send({
-                username: acc[0].username,
-                email: acc[0].email,
-                userId: acc[0].userId,
-                roles: acc[0].roles,
-                access: access.data,
+            var acc = await Users.find({ username: decoded.data.username, userId: decoded.data.userId })
+            console.log(acc)
+            res.send({
+              username: acc[0].username,
+              email: acc[0].email,
+              userId: acc[0].userId,
+              roles: acc[0].roles,
+              access: access.data,
             });
           });
       });
   } else {
+    console.log('Does not have cookies')
     var auth = Buffer.from(
       req.headers.authorization.split(" ")[1],
       "base64"
     ).toString();
+    console.log(auth)
     var username = auth.substring(0, auth.indexOf(":"));
     var password = auth.substring(auth.indexOf(":") + 1, auth.length);
     Users.find({ username: username }).then((account) => {
       bcrypt.compare(password, account[0].password).then((result) => {
+        console.log(result)
         if (result === true) {
           // get refresh
           axios
@@ -261,11 +285,7 @@ app.get("/api/login", async (req, res) => {
             .then((refreshTokenRes) => {
               // get access
               axios
-                .get(`${process.env.AUTH_SERVER_URL}/get-access`, {
-                  headers: {
-                    Authorization: `Bearer ${refreshTokenRes.data}`,
-                  },
-                })
+                .post(`${process.env.AUTH_SERVER_URL}/get-access`, { token: refreshTokenRes.data })
                 .then((accessTokenRes) => {
                   console.log(refreshTokenRes.data);
                   console.log(account[0]);

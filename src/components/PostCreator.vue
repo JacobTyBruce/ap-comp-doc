@@ -13,33 +13,42 @@
 <script>
 export default {
   name: "PostCreator",
-  data: function() {
+  data: function () {
     return {
       title: "",
       text: "",
-      post: false
+      post: false,
     };
   },
   methods: {
-      submitReview() {
-          alert('Subit Request Made')
-          var request = {
-              title: this.title,
-              text: this.text,
-              postedBy: this.$store.state.userAccount.username,
-              posted: false
-          }
-          
-          if (this.post == true) {request.posted = true}
+    submitReview() {
+      alert("Subit Request Made");
+      var request = {
+        title: this.title,
+        text: this.text,
+        postedBy: this.$store.state.userAccount.username,
+        posted: false,
+      };
 
-          this.$http.post(`${process.env.VUE_APP_API_URL}/api/post/posts`, request).then((data) => {
-              alert(data);
-              this.title = "";
-              this.text = "";
-          }).catch((err) => {
-              alert(err)
-          })
+      if (this.post == true) {
+        request.posted = true;
       }
-  }
+
+      this.$http
+        .post(`${process.env.VUE_APP_API_URL}/api/post/posts`, request, {
+          headers: {
+            Authorization: `Bearer ${window.sessionStorage.getItem("token")}`,
+          },
+        })
+        .then((data) => {
+          alert(data);
+          this.title = "";
+          this.text = "";
+        })
+        .catch((err) => {
+          alert(err);
+        });
+    },
+  },
 };
 </script>

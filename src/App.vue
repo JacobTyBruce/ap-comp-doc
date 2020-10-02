@@ -139,8 +139,8 @@ export default {
         alert("error getting posts");
       });
     // check if login exists
-    console.log(document.cookie.length);
     if (window.localStorage.getItem("login") == "true") {
+      console.log('Sending Login to Server')
       this.$http
         .get(`${process.env.VUE_APP_API_URL}/api/login`)
         .then((res) => {

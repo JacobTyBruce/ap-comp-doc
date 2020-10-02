@@ -3,7 +3,7 @@
     <v-row>
       <v-col>
         <div v-if="this.$store.state.loggedIn == false">
-          <h1>Not logged in! Login here</h1>
+          <h1>Not Logged In or Error Loading Page, Try Again or Login Here</h1>
           <v-btn :to="{ name: 'Login' }">Login</v-btn>
         </div>
         <v-container v-else>
@@ -39,7 +39,7 @@
               <v-card>
                 <v-card-title>Dashboard</v-card-title>
                 <v-btn
-                  v-if="account.roles.includes('admin')"
+                  v-if="account.roles.includes('admin')" 
                   color="orange"
                   :to="{ name: 'Admin' }"
                   >Go to Admin Console</v-btn
@@ -67,7 +67,8 @@ export default {
                this.$store.dispatch("commitLoggedIn", false)
                 this.$store.dispatch("commitUserAccount", null)
                 this.$router.push({name: 'Home'})
-                window.localStorage.removeItem('token')
+                window.sessionStorage.removeItem('token')
+                window.localStorage.removeItem('login')
             }).catch(err => {
                 console.log(err)
             })
