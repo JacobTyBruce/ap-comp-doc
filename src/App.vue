@@ -139,15 +139,8 @@ export default {
         alert("error getting posts");
       });
     // check if login exists
-    var username;
-    var password;
-    if (
-      window.localStorage.getItem("username") != null &&
-      window.localStorage.getItem("password") != null
-    ) {
-      username = window.localStorage.getItem("username");
-      password = window.localStorage.getItem("password");
-    }
+    console.log(document.cookie.length)
+    /*
     this.$http
       .get(`${process.env.VUE_APP_API_URL}/api/login`, {
         auth: {
@@ -168,6 +161,7 @@ export default {
       .catch((err) => {
         alert(err);
       });
+      */
   },
 };
 </script>

@@ -14,8 +14,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
 
-app.get('/get-refresh', (req,res) => {
-    var token = jwt.sign({name: 'Refresh'}, process.env.AUTH_SERVER_SECRET, { expiresIn: '30m' })
+app.post('/get-refresh', (req,res) => {
+    console.log(req.body)
+    let acc = {
+        _id: req.body._id,
+        username: req.body.username,
+        email: req.body.email,
+        userId: req.body.userId,
+        roles: req.body.roles
+    }
+    var token = jwt.sign(acc, process.env.AUTH_SERVER_SECRET, { expiresIn: '30m' })
     res.send(token)
     console.log(token)
     console.log('Refresh Token Sent')
@@ -46,6 +54,11 @@ app.post('/verify-token', (req,res) => {
             res.send(decoded)
         }
     })
+})
+
+app.post('/decode', (req, res) => {
+    var decodedToken = jwt.decode(req.body.token, process.env.AUTH_SERVER_SECRET)
+    res.send(decodedToken)
 })
 
 app.listen(8082, () => {

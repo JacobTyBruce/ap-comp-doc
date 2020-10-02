@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const axios =  require('axios');
+const cookieParser = require('cookie-parser');
 
 const dbName = process.env.DB_NAME;
 const dbUser = process.env.DB_USER;
@@ -32,6 +33,7 @@ const usersSchema = new mongoose.Schema({
   password: String,
   userId: String,
   roles: Array,
+  sessionToken: String,
 }, { timestamps: true });
 const postSchema = new mongoose.Schema({
   title: String,
@@ -40,6 +42,9 @@ const postSchema = new mongoose.Schema({
   posted: Boolean
 }, { timestamps: true });
 
+const refreshSchema = new mongoose.Schema({
+  token: String
+})
 // generate model
 // model = collection !!!!!!!!!!!
 // When searching use below Class Variable to search ie. Use route param as this
@@ -48,7 +53,7 @@ const Users = mongoose.model("User", usersSchema);
 const Challenges = mongoose.model("Challenge", challengeSchema);
 const Docs = mongoose.model("Doc", docSchema);
 const Posts = mongoose.model("Post", postSchema);
-
+const Refresh = mongoose.model("ValidRefresh", refreshSchema)
 // string to connect to mongodb, use .env for variables before uploading
 const mongo = `mongodb+srv://${dbUser}:${dbPass}@cluster0.gczfd.mongodb.net/${dbName}?retryWrites=true&w=majority`;
 // connect
@@ -62,8 +67,10 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors({
-  origin: true
+  origin: true,
+  credentials: true
 }));
+app.use(cookieParser());
 
 // mapping function for URL and collection
 function getCollection(urlReq) {
@@ -176,28 +183,32 @@ app.delete("/api/delete/:col", (req, res) => {
 
 app.get("/api/login", (req, res) => {
   console.log("Login recieved");
+
   var auth = Buffer.from(
     req.headers.authorization.split(" ")[1],
     "base64"
   ).toString();
   var username = auth.substring(0, auth.indexOf(":"));
   var password = auth.substring(auth.indexOf(":") + 1, auth.length);
-  Users.find({ username: username }).then((data) => {
-    bcrypt.compare(password, data[0].password).then((result) => {
+  Users.find({ username: username }).then((account) => {
+    bcrypt.compare(password, account[0].password).then((result) => {
       if (result === true) {
           // get refresh
-          axios.get(`${process.env.AUTH_SERVER_URL}/get-refresh`).then(refreshTokenRes => {
+          axios.post(`${process.env.AUTH_SERVER_URL}/get-refresh`, account[0]).then(refreshTokenRes => {
               // get access
               axios.get(`${process.env.AUTH_SERVER_URL}/get-access`, {headers: {
                   'Authorization': `Bearer ${refreshTokenRes.data}`
               }}).then(accessTokenRes => {
                 console.log(refreshTokenRes.data)
+                console.log(account[0])
+                //Users.find({username: account[0].username, userId: account[0].userId}).update({ $set: { sessionToken: refreshTokenRes.data }}).exec()
+                let acc = Users.findOneAndUpdate({username: account[0].username, userId: account[0].userId}, { $set: { sessionToken: refreshTokenRes.data }}, {new: true}).exec()
                 res.cookie('token', refreshTokenRes.data, {httpOnly: true})
                  res.send({
-                    username: data[0].username,
-                    email: data[0].email,
-                    userId: data[0].userId,
-                    roles: data[0].roles,
+                    username: account[0].username,
+                    email: account[0].email,
+                    userId: account[0].userId,
+                    roles: account[0].roles,
                     access: accessTokenRes.data
                 }); 
               }).catch(err => {res.send(err)})
@@ -258,6 +269,20 @@ app.post("/api/signup", async (req, res) => {
     res.send(errorMsg);
   }
 });
+
+app.get('/api/logout', (req,res) => {
+  console.log('Logout Request')
+  console.log(req.cookies)
+  res.clearCookie('token')
+  res.send('Success, cookie "Token" removed')
+  // use cookie parser to get account info
+  axios.post(`${process.env.AUTH_SERVER_URL}/decode`, {token: req.cookies.token}).then(decoded => {
+    console.log('Removing Session Token from User Account')
+    Users.find({username: decoded.username, userId: decoded.userId}).updateOne({ $set: { sessionToken: "" }}).exec()
+    console.log('Removed Session Token from User Account')
+  }).catch(err => console.log(err))
+  
+})
 
 app.get("/test", (req, res) => {
   bcrypt
