@@ -139,29 +139,24 @@ export default {
         alert("error getting posts");
       });
     // check if login exists
-    console.log(document.cookie.length)
-    /*
-    this.$http
-      .get(`${process.env.VUE_APP_API_URL}/api/login`, {
-        auth: {
-          username: username,
-          password: password,
-        },
-      })
-      .then((res) => {
-        // check for correctness
-        if (res.data === false) {
-          alert('Error Logining In')
-        } else {
-          console.log(res.data);
-          this.$store.dispatch("commitLoggedIn", true);
-          this.$store.dispatch("commitUserAccount", res.data);;
-        }
-      })
-      .catch((err) => {
-        alert(err);
-      });
-      */
+    console.log(document.cookie.length);
+    if (window.localStorage.getItem("login") == "true") {
+      this.$http
+        .get(`${process.env.VUE_APP_API_URL}/api/login`)
+        .then((res) => {
+          // check for correctness
+          if (res.data === false) {
+            alert("Error Logging In");
+          } else {
+            console.log(res.data);
+            this.$store.dispatch("commitLoggedIn", true);
+            this.$store.dispatch("commitUserAccount", res.data);
+          }
+        })
+        .catch((err) => {
+          alert(err);
+        });
+    }
   },
 };
 </script>

@@ -49,9 +49,9 @@ app.get('/get-access', (req,res) => {
 app.post('/verify-token', (req,res) => {
     var decoded = jwt.verify(req.body.token,process.env.AUTH_SERVER_SECRET, (err, decoded) => {
         if (err) {
-            res.send(err)
+            res.send(err, 401)
         } else {
-            res.send(decoded)
+            res.send(decoded, 200)
         }
     })
 })

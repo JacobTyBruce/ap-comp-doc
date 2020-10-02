@@ -4,47 +4,59 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
-const axios =  require('axios');
-const cookieParser = require('cookie-parser');
+const axios = require("axios");
+const cookieParser = require("cookie-parser");
 
 const dbName = process.env.DB_NAME;
 const dbUser = process.env.DB_USER;
 const dbPass = process.env.DB_PASS;
 
 // schemas for whatever youre doing
-const docSchema = new mongoose.Schema({
-  title: String,
-  desc: String,
-  text: String,
-  // implement later ref: Object,
-  tags: Array,
-  posted: Boolean
-}, { timestamps: true });
-const challengeSchema = new mongoose.Schema({
-  title: String,
-  desc: String,
-  challenge: String,
-  text: String,
-  posted: Boolean
-}, { timestamps: true });
-const usersSchema = new mongoose.Schema({
-  username: String,
-  email: String,
-  password: String,
-  userId: String,
-  roles: Array,
-  sessionToken: String,
-}, { timestamps: true });
-const postSchema = new mongoose.Schema({
-  title: String,
-  text: String,
-  postedBy: String,
-  posted: Boolean
-}, { timestamps: true });
+const docSchema = new mongoose.Schema(
+  {
+    title: String,
+    desc: String,
+    text: String,
+    // implement later ref: Object,
+    tags: Array,
+    posted: Boolean,
+  },
+  { timestamps: true }
+);
+const challengeSchema = new mongoose.Schema(
+  {
+    title: String,
+    desc: String,
+    challenge: String,
+    text: String,
+    posted: Boolean,
+  },
+  { timestamps: true }
+);
+const usersSchema = new mongoose.Schema(
+  {
+    username: String,
+    email: String,
+    password: String,
+    userId: String,
+    roles: Array,
+    sessionToken: String,
+  },
+  { timestamps: true }
+);
+const postSchema = new mongoose.Schema(
+  {
+    title: String,
+    text: String,
+    postedBy: String,
+    posted: Boolean,
+  },
+  { timestamps: true }
+);
 
 const refreshSchema = new mongoose.Schema({
-  token: String
-})
+  token: String,
+});
 // generate model
 // model = collection !!!!!!!!!!!
 // When searching use below Class Variable to search ie. Use route param as this
@@ -53,7 +65,7 @@ const Users = mongoose.model("User", usersSchema);
 const Challenges = mongoose.model("Challenge", challengeSchema);
 const Docs = mongoose.model("Doc", docSchema);
 const Posts = mongoose.model("Post", postSchema);
-const Refresh = mongoose.model("ValidRefresh", refreshSchema)
+const Refresh = mongoose.model("ValidRefresh", refreshSchema);
 // string to connect to mongodb, use .env for variables before uploading
 const mongo = `mongodb+srv://${dbUser}:${dbPass}@cluster0.gczfd.mongodb.net/${dbName}?retryWrites=true&w=majority`;
 // connect
@@ -63,13 +75,31 @@ const db = mongoose.connection;
 // errors
 db.on("error", console.error.bind(console, "connection error:"));
 
+// token verification middleware
+const verifyToken = async function verifyToken(req,res,next) {
+    var accessToken = req.headers.authorization.split(" ")[1]
+    var accessVerification = await axios.post(`${AUTH_SERVER_URL}/verify`, {token: accessToken})
+    if (accessVerification.status == 200) {
+        next()
+    } else {
+        var refreshVerification = await axios.post(`${AUTH_SERVER_URL}/verify`, {token: req.cookies.token})
+        if (refreshVerification.status == 200) {
+            next()
+        } else {
+            res.send('Invalid Credentials, please try logging in again', 401)
+        }
+    }
+}
+
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 
 // mapping function for URL and collection
@@ -114,7 +144,7 @@ app.get("/api/get/:col/all", (req, res) => {
 });
 
 app.get("/api/get/:col/", (req, res) => {
-    console.log('GET request received')
+  console.log("GET request received");
   let collection = getCollection(req.params.col);
   let urlQuery = req.query;
   if (collection == "None") {
@@ -125,12 +155,11 @@ app.get("/api/get/:col/", (req, res) => {
     collection.find(urlQuery).then((data) => {
       res.send(data);
     });
-    
   }
 });
 
-app.post("/api/post/:col", (req, res) => {
-    console.log('post request')
+app.post("/api/post/:col", verifyToken, (req, res) => {
+  console.log("post request");
   let collection = getCollection(req.params.col);
   if (collection == "None") {
     res.send(
@@ -145,30 +174,37 @@ app.post("/api/post/:col", (req, res) => {
   }
 });
 
-app.patch("/api/update/:col/", (req,res) => {
-  console.log('Path Request')
-    let collection = getCollection(req.params.col);
-    if (collection == "None") {
+app.patch("/api/update/:col/", verifyToken, (req, res) => {
+  console.log("Path Request");
+  let collection = getCollection(req.params.col);
+  if (collection == "None") {
     res.send(
       "Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col
     );
+  } else {
+    // check if all query is supplied, if not look in body
+    if (req.query.hasOwnProperty("all") == true) {
+      console.log("All");
+      collection
+        .updateMany(req.body.query, req.body.replace, { new: true })
+        .then((err, doc) => {
+          res.send("All Updated");
+        });
     } else {
-        // check if all query is supplied, if not look in body
-        if (req.query.hasOwnProperty('all') == true) {
-            console.log('All')
-            collection.updateMany(req.body.query, req.body.replace, {new: true}).then((err, doc) => {
-                res.send('All Updated')
-            })
-        } else {
-            console.log('Not all')
-            collection.findOneAndUpdate(req.body.query, req.body.replace, {new: true}, (err, doc) => {      
-                res.send(doc)
-            })
+      console.log("Not all");
+      collection.findOneAndUpdate(
+        req.body.query,
+        req.body.replace,
+        { new: true },
+        (err, doc) => {
+          res.send(doc);
         }
+      );
     }
-}) 
+  }
+});
 
-app.delete("/api/delete/:col", (req, res) => {
+app.delete("/api/delete/:col", verifyToken, (req, res) => {
   let collection = getCollection(req.params.col);
   if (collection == "None") {
     res.send(
@@ -181,46 +217,90 @@ app.delete("/api/delete/:col", (req, res) => {
   }
 });
 
-app.get("/api/login", (req, res) => {
+app.get("/api/login", async (req, res) => {
   console.log("Login recieved");
-
-  var auth = Buffer.from(
-    req.headers.authorization.split(" ")[1],
-    "base64"
-  ).toString();
-  var username = auth.substring(0, auth.indexOf(":"));
-  var password = auth.substring(auth.indexOf(":") + 1, auth.length);
-  Users.find({ username: username }).then((account) => {
-    bcrypt.compare(password, account[0].password).then((result) => {
-      if (result === true) {
+  console.log(req.cookies);
+  if (Object.prototype.hasOwnProperty.call(req.cookies, "token")) {
+    axios
+      .post(`${process.env.AUTH_SERVER_URL}/decode`, {
+        token: req.cookies.token,
+      })
+      .then((decoded) => {
+          console.log(decoded.data)
+        axios
+          .get(`${process.env.AUTH_SERVER_URL}/get-access`, {
+            headers: {
+              Authorization: `Bearer ${req.cookies.token}`,
+            },
+          })
+          .then(async (access) => {
+            var acc = await Users.find({username: decoded.data.username, userId: decoded.data.userId})
+                console.log(acc)
+                res.send({
+                username: acc[0].username,
+                email: acc[0].email,
+                userId: acc[0].userId,
+                roles: acc[0].roles,
+                access: access.data,
+            });
+          });
+      });
+  } else {
+    var auth = Buffer.from(
+      req.headers.authorization.split(" ")[1],
+      "base64"
+    ).toString();
+    var username = auth.substring(0, auth.indexOf(":"));
+    var password = auth.substring(auth.indexOf(":") + 1, auth.length);
+    Users.find({ username: username }).then((account) => {
+      bcrypt.compare(password, account[0].password).then((result) => {
+        if (result === true) {
           // get refresh
-          axios.post(`${process.env.AUTH_SERVER_URL}/get-refresh`, account[0]).then(refreshTokenRes => {
+          axios
+            .post(`${process.env.AUTH_SERVER_URL}/get-refresh`, account[0])
+            .then((refreshTokenRes) => {
               // get access
-              axios.get(`${process.env.AUTH_SERVER_URL}/get-access`, {headers: {
-                  'Authorization': `Bearer ${refreshTokenRes.data}`
-              }}).then(accessTokenRes => {
-                console.log(refreshTokenRes.data)
-                console.log(account[0])
-                //Users.find({username: account[0].username, userId: account[0].userId}).update({ $set: { sessionToken: refreshTokenRes.data }}).exec()
-                let acc = Users.findOneAndUpdate({username: account[0].username, userId: account[0].userId}, { $set: { sessionToken: refreshTokenRes.data }}, {new: true}).exec()
-                res.cookie('token', refreshTokenRes.data, {httpOnly: true})
-                 res.send({
+              axios
+                .get(`${process.env.AUTH_SERVER_URL}/get-access`, {
+                  headers: {
+                    Authorization: `Bearer ${refreshTokenRes.data}`,
+                  },
+                })
+                .then((accessTokenRes) => {
+                  console.log(refreshTokenRes.data);
+                  console.log(account[0]);
+                  //Users.find({username: account[0].username, userId: account[0].userId}).update({ $set: { sessionToken: refreshTokenRes.data }}).exec()
+                  let acc = Users.findOneAndUpdate(
+                    {
+                      username: account[0].username,
+                      userId: account[0].userId,
+                    },
+                    { $set: { sessionToken: refreshTokenRes.data } },
+                    { new: true }
+                  ).exec();
+                  res.cookie("token", refreshTokenRes.data, { httpOnly: true });
+                  res.send({
                     username: account[0].username,
                     email: account[0].email,
                     userId: account[0].userId,
                     roles: account[0].roles,
-                    access: accessTokenRes.data
-                }); 
-              }).catch(err => {res.send(err)})
-              
-          }).catch(err => {res.send(err)})
-        
-      }
-      if (result === false) {
-        res.send(false);
-      }
+                    access: accessTokenRes.data,
+                  });
+                })
+                .catch((err) => {
+                  res.send(err);
+                });
+            })
+            .catch((err) => {
+              res.send(err);
+            });
+        }
+        if (result === false) {
+          res.send(false);
+        }
+      });
     });
-  });
+  }
 });
 
 app.post("/api/signup", async (req, res) => {
@@ -270,19 +350,23 @@ app.post("/api/signup", async (req, res) => {
   }
 });
 
-app.get('/api/logout', (req,res) => {
-  console.log('Logout Request')
-  console.log(req.cookies)
-  res.clearCookie('token')
-  res.send('Success, cookie "Token" removed')
+app.get("/api/logout", (req, res) => {
+  console.log("Logout Request");
+  console.log(req.cookies);
+  res.clearCookie("token");
+  res.send('Success, cookie "Token" removed');
   // use cookie parser to get account info
-  axios.post(`${process.env.AUTH_SERVER_URL}/decode`, {token: req.cookies.token}).then(decoded => {
-    console.log('Removing Session Token from User Account')
-    Users.find({username: decoded.username, userId: decoded.userId}).updateOne({ $set: { sessionToken: "" }}).exec()
-    console.log('Removed Session Token from User Account')
-  }).catch(err => console.log(err))
-  
-})
+  axios
+    .post(`${process.env.AUTH_SERVER_URL}/decode`, { token: req.cookies.token })
+    .then((decoded) => {
+      console.log("Removing Session Token from User Account");
+      Users.find({ username: decoded.username, userId: decoded.userId })
+        .updateOne({ $set: { sessionToken: "" } })
+        .exec();
+      console.log("Removed Session Token from User Account");
+    })
+    .catch((err) => console.log(err));
+});
 
 app.get("/test", (req, res) => {
   bcrypt
