@@ -81,7 +81,11 @@ export default {
             // check if doc
             if (item.hasOwnProperty('tags')) {
                 console.log('Doc')
-                this.$http.patch( `${process.env.VUE_APP_API_URL}/api/update/docs/`, patchBody).then((result) => {
+                this.$http.patch( `${process.env.VUE_APP_API_URL}/api/update/docs/`, patchBody, {
+                    headers: {
+                        'Authorization': `Bearer ${window.sessionStorage.getItem('token')}`
+                    }
+                }).then((result) => {
                     console.log(result)
                 })
             }

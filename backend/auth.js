@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.post('/get-refresh', (req,res) => {
-    console.log(req.body)
+    console.log('Getting Refresh Token For User '+req.body.username)
     let acc = {
         _id: req.body._id,
         username: req.body.username,
@@ -23,23 +23,25 @@ app.post('/get-refresh', (req,res) => {
         userId: req.body.userId,
         roles: req.body.roles
     }
-    var token = jwt.sign(acc, process.env.AUTH_SERVER_SECRET, { expiresIn: '30m' })
+    var token = jwt.sign(acc, process.env.AUTH_SERVER_SECRET, { expiresIn: '1h' })
     res.send(token)
-    console.log(token)
+    console.log("Refresh Token: "+token)
     console.log('Refresh Token Sent')
 })
 
 app.post('/get-access', (req,res) => {
-    // check refresh -- change to check cookie as this is where it will be sent in the future
-    var accessToken = req.body.token
-  console.log(accessToken)
-    jwt.verify(accessToken, process.env.AUTH_SERVER_SECRET, (err, decoded) => {
+    var refreshToken = req.body.token
+  console.log('User Refresh Token: '+refreshToken)
+    jwt.verify(refreshToken, process.env.AUTH_SERVER_SECRET, (err, decoded) => {
       if (err) {
           res.send(err)
           console.log(err)
       } else {
-          res.send(jwt.sign({name: 'Access'}, process.env.AUTH_SERVER_SECRET, {expiresIn: '30s' }))
-          console.log('success')
+          console.log('Valid Refresh, sending new access now')
+          newAccess = jwt.sign({name: 'Access'}, process.env.AUTH_SERVER_SECRET, {expiresIn: '5m' })
+          res.send(newAccess)
+          console.log('Access Sent')
+          console.log('Access Token: '+newAccess)
       }
 
   })

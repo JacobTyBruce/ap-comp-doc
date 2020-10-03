@@ -89,13 +89,15 @@ const verifyToken = function verifyToken(req, res, next) {
     // if cookie/refresh token is present, this fires
     if (Object.prototype.hasOwnProperty.call(req.cookies, "token")) {
       console.log('Getting new Access')
+      console.log('Refresh Token: '+req.cookies.token)
       axios.post(`${process.env.AUTH_SERVER_URL}/get-access`, { token: req.cookies.token }).then(newAccess => {
-        res.body.newAccess = newAccess.data
+        req.body.newAccess = newAccess
+        console.log(res.body)
         next()
       }).catch(err => {
         // catches arbiturary error
         console.log('Error getting new access')
-        console.log(err.data)
+        console.log('Return Body: '+err)
         res.send('Arbiturary Error with request, please try again', 400)
       })
     } else {
@@ -154,12 +156,10 @@ app.get("/api/get/:col/all", (req, res) => {
     collection.find().then(function(data) {
       console.log(data)
       let newData = data
-        newData.forEach(item => {
-          console.log(item)
-          delete item.password
-          delete item.sessionToken
-          console.log('Why no work')
-        })
+        for (let i = 0; i < data.length; i++) {
+          newData[i].password = null
+          newData[i].sessionToken = null
+        }
       res.send(newData);
     });
   }
@@ -197,7 +197,7 @@ app.post("/api/post/:col", verifyToken, (req, res) => {
 });
 
 app.patch("/api/update/:col/", verifyToken, (req, res) => {
-  console.log("Path Request");
+  console.log("Patch Request");
   let collection = getCollection(req.params.col);
   if (collection == "None") {
     res.send(
