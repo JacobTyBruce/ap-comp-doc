@@ -6,6 +6,7 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const axios = require("axios");
 const cookieParser = require("cookie-parser");
+const jwt = require('jsonwebtoken')
 
 const dbName = process.env.DB_NAME;
 const dbUser = process.env.DB_USER;
@@ -73,38 +74,37 @@ db.on("error", console.error.bind(console, "connection error:"));
 
 // token verification middleware
 const verifyToken = function verifyToken(req, res, next) {
+
   // get access token from header
   var accessToken = req.headers.authorization.split(" ")[1]
-  console.log('About to send access for verification')
-  console.log(req.cookies)
-  console.log(req.cookies.token)
   // check if access is good
-  axios.post(`${process.env.AUTH_SERVER_URL}/verify-token`, { token: accessToken }).then(accessRes => {
-    // fires if access jwt is good
-    next()
-  }).catch(accessErr => {
-    // fires if access jwt is bad
-    // checks for refresh token, if present, fires to get another access, if not fails with status 401 not auth
-
-    // if cookie/refresh token is present, this fires
-    if (Object.prototype.hasOwnProperty.call(req.cookies, "token")) {
-      console.log('Getting new Access')
-      console.log('Refresh Token: '+req.cookies.token)
-      axios.post(`${process.env.AUTH_SERVER_URL}/get-access`, { token: req.cookies.token }).then(newAccess => {
-        res.write(newAccess)
-        console.log(res.body)
-        next()
-      }).catch(err => {
-        // catches arbiturary error
-        console.log('Error getting new access')
-        console.log('Return Body: '+err)
-        res.send('Arbiturary Error with request, please try again', 400)
-      })
-    } else {
-      // if no cookies/refresh token is present, this fires
-      res.send('Not authorized to use this resource, login to try again', 401)
-    }
-  })
+  jwt.verify(accessToken, process.env.AUTH_SERVER_SECRET, (accessResDecoded, err) => {
+    // if access is good, this fires
+        if (!err) {
+            req.body.decoded = accessResDecoded
+            next()
+        } else {
+            // check if cookie (refresh) exists
+            if (Object.prototype.hasOwnProperty.call(req.cookies, "token")) {
+                // if so, get new access
+                console.log('Getting new Access')
+                console.log('Refresh Token: '+req.cookies.token)
+                axios.post(`${process.env.AUTH_SERVER_URL}/get-access`, { token: req.cookies.token }).then(newAccess => {
+                    res.write(newAccess)
+                    console.log(res.body)
+                    next()
+                }).catch(err => {
+                    // catches arbitrary error
+                    console.log('Error getting new access')
+                    console.log('Return Body: '+err)
+                    res.send('Arbitrary Error with request, please try again', 400)
+                })
+            } else {
+                // if no cookies/refresh token is present, this fires
+                res.send('Not authorized to use this resource, login to try again', 401)
+            }
+        }
+    })
 }
 
 const app = express();
