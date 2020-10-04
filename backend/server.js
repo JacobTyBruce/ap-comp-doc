@@ -91,7 +91,7 @@ const verifyToken = function verifyToken(req, res, next) {
       console.log('Getting new Access')
       console.log('Refresh Token: '+req.cookies.token)
       axios.post(`${process.env.AUTH_SERVER_URL}/get-access`, { token: req.cookies.token }).then(newAccess => {
-        req.body.newAccess = newAccess
+        res.write(newAccess)
         console.log(res.body)
         next()
       }).catch(err => {
@@ -144,8 +144,6 @@ function getCollection(urlReq) {
   return param;
 }
 
-// ------ CAN FIX API BY FILTERING RESULTS IN .find() BY PASSING SECOND OBJECT OF PROPS TO RETURN ----------
-
 app.get("/api/get/:col/all", (req, res) => {
   let collection = getCollection(req.params.col);
   if (collection == "None") {
@@ -153,14 +151,9 @@ app.get("/api/get/:col/all", (req, res) => {
       "Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col
     );
   } else {
-    collection.find().then(function(data) {
+    collection.find({}, {password: 0, sessionToken: 0}).then(function(data) {
       console.log(data)
-      let newData = data
-        for (let i = 0; i < data.length; i++) {
-          newData[i].password = null
-          newData[i].sessionToken = null
-        }
-      res.send(newData);
+      res.send(data);
     });
   }
 });
@@ -174,7 +167,7 @@ app.get("/api/get/:col/", (req, res) => {
       "Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col
     );
   } else {
-    collection.find(query).then((data) => {
+    collection.find(query, {password: 0, sessionToken: 0}).then((data) => {
       res.send(data);
     });
   }
@@ -380,8 +373,7 @@ app.get("/api/logout", (req, res) => {
     .post(`${process.env.AUTH_SERVER_URL}/decode`, { token: req.cookies.token })
     .then((decoded) => {
       console.log("Removing Session Token from User Account");
-      Users.find({ username: decoded.username, userId: decoded.userId })
-        .updateOne({ $set: { sessionToken: "" } })
+      Users.updateOne({ username: decoded.data.username, userId: decoded.data.userId },{ sessionToken: ""})
         .exec();
       console.log("Removed Session Token from User Account");
     })

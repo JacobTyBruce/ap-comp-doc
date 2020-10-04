@@ -53,7 +53,7 @@ app.post('/verify-token', (req,res) => {
         if (err) {
             res.send(err, 401)
         } else {
-            res.send(decoded, 200)
+            //check if refresh
         }
     })
 })
