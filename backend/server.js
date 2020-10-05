@@ -79,10 +79,11 @@ const verifyToken = function verifyToken(req, res, next) {
   var accessToken = req.headers.authorization.split(" ")[1]
   // check if access is good
   jwt.verify(accessToken, process.env.AUTH_SERVER_SECRET, (accessResDecoded, err) => {
-    // if access is good, this fires
+        // if access is good, this fires
         if (!err) {
             req.body.decoded = accessResDecoded
             next()
+          // if not, this does
         } else {
             // check if cookie (refresh) exists
             if (Object.prototype.hasOwnProperty.call(req.cookies, "token")) {
@@ -92,9 +93,10 @@ const verifyToken = function verifyToken(req, res, next) {
                 axios.post(`${process.env.AUTH_SERVER_URL}/get-access`, { token: req.cookies.token }).then(newAccess => {
                     res.write(newAccess)
                     console.log(res.body)
+                    console.log('New Access: '+newAccess)
                     next()
                 }).catch(err => {
-                    // catches arbitrary error
+                    // catches arbitrary error with getting new access
                     console.log('Error getting new access')
                     console.log('Return Body: '+err)
                     res.send('Arbitrary Error with request, please try again', 400)
@@ -273,25 +275,27 @@ app.get("/api/login", async (req, res) => {
         console.log(result)
         if (result === true) {
           // get refresh
+          console.log(account[0])
           axios
             .post(`${process.env.AUTH_SERVER_URL}/get-refresh`, account[0])
             .then((refreshTokenRes) => {
+              // set refresh in DB so auth server can lookup for access
+              let acc = Users.findOneAndUpdate(
+                {
+                  username: account[0].username,
+                  userId: account[0].userId,
+                },
+                { $set: { sessionToken: refreshTokenRes.data } },
+                { new: true }
+              ).exec();
+              // set cookie
+                  res.cookie("token", refreshTokenRes.data, { httpOnly: true });
               // get access
               axios
                 .post(`${process.env.AUTH_SERVER_URL}/get-access`, { token: refreshTokenRes.data })
                 .then((accessTokenRes) => {
                   console.log(refreshTokenRes.data);
                   console.log(account[0]);
-                  //Users.find({username: account[0].username, userId: account[0].userId}).update({ $set: { sessionToken: refreshTokenRes.data }}).exec()
-                  let acc = Users.findOneAndUpdate(
-                    {
-                      username: account[0].username,
-                      userId: account[0].userId,
-                    },
-                    { $set: { sessionToken: refreshTokenRes.data } },
-                    { new: true }
-                  ).exec();
-                  res.cookie("token", refreshTokenRes.data, { httpOnly: true });
                   res.send({
                     username: account[0].username,
                     email: account[0].email,
