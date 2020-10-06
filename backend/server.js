@@ -381,6 +381,7 @@ app.get("/api/logout", (req, res) => {
 
 app.post('/api/set-reset', async (req,res) => {
     var account;
+    // checks for username or email
     if (req.body.hasOwnProperty('email')) {
         var email = req.body.email
         try {
