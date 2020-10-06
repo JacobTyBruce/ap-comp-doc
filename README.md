@@ -2,18 +2,17 @@
 
 ## Project setup
 ```
+Install Yarn
+https://classic.yarnpkg.com/en/docs/install/
+```
+
+## Open Console in root folder and type the following
+
+
+```
 yarn install
 ```
 
-### Compiles and hot-reloads for development
 ```
 yarn serve
 ```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

@@ -34,12 +34,12 @@ export default {
     },
     methods: {
         login(user,pass) {
+            var remember = this.remember
             this.$http.get(`${process.env.VUE_APP_API_URL}/api/login`, {
                 auth: {
                     username: user,
                     password: pass
                 },
-                withCredentials: true
             }).then((res) => {
                 // check for correctness
                 if (res.data === false) {
@@ -48,11 +48,11 @@ export default {
                   console.log(res.data)
                   this.$store.dispatch("commitLoggedIn", true)
                   this.$store.dispatch("commitUserAccount", res.data)
+                  window.sessionStorage.setItem('token', res.data.access)
+                  if (remember == true) {
+                      window.localStorage.setItem('login', 'true')
+                  }
                   this.$router.back()
-                  window.localStorage.setItem('token', res.data.access)
-                  // remove later
-                  window.localStorage.setItem('username', user)
-                  window.localStorage.setItem('password', pass)
                 }
             }).catch((err) => {
                 alert(err)

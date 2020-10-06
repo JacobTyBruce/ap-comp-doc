@@ -15,36 +15,43 @@
 <script>
 export default {
   name: "PostCreator",
-  data: function() {
+  data: function () {
     return {
       title: "",
       desc: "",
       challenge: "",
       text: "",
-      post: false
+      post: false,
     };
   },
   methods: {
-      submitReview() {
-          alert('Subit Request Made')
-          var request = {
-              title: this.title,
-              desc: this.desc,
-              challenge: this.challenge,
-              text: this.text,
-              posted: this.post
-          }
-          this.$http.post(`${process.env.VUE_APP_API_URL}/api/post/challenges`, request).then((data) => {
-              alert(data);
-              this.title = ""
-              this.text= ""
-              this.desc = ""
-              this.challenge = ""
-              this.post = false
-          }).catch((err) => {
-              alert(err)
-          })
-      }
-  }
+    submitReview() {
+      alert("Subit Request Made");
+      var request = {
+        title: this.title,
+        desc: this.desc,
+        challenge: this.challenge,
+        text: this.text,
+        posted: this.post,
+      };
+      this.$http
+        .post(`${process.env.VUE_APP_API_URL}/api/post/challenges`, request, {
+          headers: {
+            Authorization: `Bearer ${window.sessionStorage.getItem("token")}`,
+          },
+        })
+        .then((data) => {
+          alert(data);
+          this.title = "";
+          this.text = "";
+          this.desc = "";
+          this.challenge = "";
+          this.post = false;
+        })
+        .catch((err) => {
+          alert(err);
+        });
+    },
+  },
 };
 </script>

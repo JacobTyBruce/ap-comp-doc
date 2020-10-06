@@ -36,7 +36,11 @@ export default {
         posted: this.post,
       };
       this.$http
-        .post(`${process.env.VUE_APP_API_URL}/api/post/docs`, request)
+        .post(`${process.env.VUE_APP_API_URL}/api/post/docs`, request, {
+          headers: {
+            Authorization: `Bearer ${window.sessionStorage.getItem("token")}`,
+          },
+        })
         .then((data) => {
           alert(data);
           this.title = "";

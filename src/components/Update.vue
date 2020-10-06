@@ -77,8 +77,13 @@ export default {
           if (this.all == true) {urlReq += '?all=true'}
           alert(urlReq)
           // call request
-          this.$http.patch(urlReq, patchBody).then((result) => {
+          this.$http.patch(urlReq, patchBody, {
+            headers: {
+              'Authorization': `Bearer ${window.sessionStorage.getItem('token')}`
+            }
+          }).then((result) => {
               console.log(result)
+              console.log(result.data)
               this.result = result.data
           })
       }

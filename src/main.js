@@ -5,6 +5,7 @@ import store from './store'
 import vuetify from './plugins/vuetify';
 import axios from 'axios'
 
+axios.defaults.withCredentials = true
 Vue.prototype.$http = axios;
 Vue.config.productionTip = false
 

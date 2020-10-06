@@ -60,10 +60,12 @@
       </v-list>
     </v-navigation-drawer>
 
+    <!-- Make login slide from side rather than seperate page -->
     <v-app-bar app clipped-left>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>{{this.appName}}</v-toolbar-title>
       <v-spacer></v-spacer>
+      <p style='color:red' v-if="this.errorStatus == true">{{this.error}}</p>
       <v-toolbar-items v-if="this.$store.state.loggedIn">
         <v-btn :to="{name:'Account'}" @click.stop="drawer = false" fab>
           <v-icon>mdi-account</v-icon>
@@ -94,6 +96,8 @@ export default {
   data: () => ({
     drawer: null,
     appName: "Totally Non-conspicuous App",
+    errorStatus: false,
+    error: ""
   }),
   created() {
     // set theme
@@ -139,35 +143,27 @@ export default {
         alert("error getting posts");
       });
     // check if login exists
-    var username;
-    var password;
-    if (
-      window.localStorage.getItem("username") != null &&
-      window.localStorage.getItem("password") != null
-    ) {
-      username = window.localStorage.getItem("username");
-      password = window.localStorage.getItem("password");
+    if (window.localStorage.getItem("login") == "true") {
+      console.log('Sending Login to Server')
+      this.$http
+        .get(`${process.env.VUE_APP_API_URL}/api/login`)
+        .then((res) => {
+          // check for correctness
+          if (res.data === false) {
+            alert("Error Logging In");
+          } else {
+            console.log(res.data);
+            this.$store.dispatch("commitLoggedIn", true);
+            this.$store.dispatch("commitUserAccount", res.data);
+          }
+        })
+        .catch((err) => {
+          alert(err);
+          this.errorStatus = true;
+          this.error = "Error Loggining In, Please Try Again"
+          window.localStorage.removeItem('login')
+        });
     }
-    this.$http
-      .get(`${process.env.VUE_APP_API_URL}/api/login`, {
-        auth: {
-          username: username,
-          password: password,
-        },
-      })
-      .then((res) => {
-        // check for correctness
-        if (res.data === false) {
-          alert('Error Logining In')
-        } else {
-          console.log(res.data);
-          this.$store.dispatch("commitLoggedIn", true);
-          this.$store.dispatch("commitUserAccount", res.data);;
-        }
-      })
-      .catch((err) => {
-        alert(err);
-      });
   },
 };
 </script>
