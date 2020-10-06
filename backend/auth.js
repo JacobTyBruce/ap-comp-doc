@@ -94,7 +94,7 @@ app.post('/get-access', (req, res) => {
                     roles
                 }
                 let account = await Users.find(accQuery, {password: 0}).exec()
-                console.log('Account from search - '+account)
+                console.log(`Account from search - ${account}`)
                 // converts account variable to account object, info is sent back as array with one object since single user lookup
                 account = account[0]
                 // checks if info in token and info in DB match up

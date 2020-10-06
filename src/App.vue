@@ -60,10 +60,12 @@
       </v-list>
     </v-navigation-drawer>
 
+    <!-- Make login slide from side rather than seperate page -->
     <v-app-bar app clipped-left>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>{{this.appName}}</v-toolbar-title>
       <v-spacer></v-spacer>
+      <p style='color:red' v-if="this.errorStatus == true">{{this.error}}</p>
       <v-toolbar-items v-if="this.$store.state.loggedIn">
         <v-btn :to="{name:'Account'}" @click.stop="drawer = false" fab>
           <v-icon>mdi-account</v-icon>
@@ -94,6 +96,8 @@ export default {
   data: () => ({
     drawer: null,
     appName: "Totally Non-conspicuous App",
+    errorStatus: false,
+    error: ""
   }),
   created() {
     // set theme
@@ -155,6 +159,9 @@ export default {
         })
         .catch((err) => {
           alert(err);
+          this.errorStatus = true;
+          this.error = "Error Loggining In, Please Try Again"
+          window.localStorage.removeItem('login')
         });
     }
   },

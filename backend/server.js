@@ -239,28 +239,22 @@ app.get("/api/login", async (req, res) => {
   console.log(req.cookies);
   if (Object.prototype.hasOwnProperty.call(req.cookies, "token")) {
     console.log('Has Cookies')
-    axios
-      .post(`${process.env.AUTH_SERVER_URL}/decode`, {
-        token: req.cookies.token,
-      })
-      .then((decoded) => {
-        console.log(decoded.data)
-        axios
-          .post(`${process.env.AUTH_SERVER_URL}/get-access`, {
-            token: req.cookies.token
-          })
-          .then(async (access) => {
-            var acc = await Users.find({ username: decoded.data.username, userId: decoded.data.userId })
-            console.log(acc)
-            res.send({
-              username: acc[0].username,
-              email: acc[0].email,
-              userId: acc[0].userId,
-              roles: acc[0].roles,
-              access: access.data,
-            });
+      axios
+        .post(`${process.env.AUTH_SERVER_URL}/get-access`, {
+          token: req.cookies.token
+        })
+        .then(async (access) => {
+          var decoded = await axios.post(`${process.env.AUTH_SERVER_URL}/decode`, {token: req.cookies.token})
+          var acc = await Users.find({ username: decoded.data.username, userId: decoded.data.userId })
+          console.log(acc)
+          res.send({
+            username: acc[0].username,
+            email: acc[0].email,
+            userId: acc[0].userId,
+            roles: acc[0].roles,
+            access: access.data,
           });
-      });
+        });
   } else {
     console.log('Does not have cookies')
     var auth = Buffer.from(
