@@ -42,6 +42,7 @@ const usersSchema = new mongoose.Schema(
     userId: String,
     roles: Array,
     sessionToken: String,
+    resetToken: String
   },
   { timestamps: true }
 );
@@ -377,6 +378,39 @@ app.get("/api/logout", (req, res) => {
     })
     .catch((err) => console.log(err));
 });
+
+app.post('/api/set-reset', async (req,res) => {
+    var account;
+    if (req.body.hasOwnProperty('email')) {
+        var email = req.body.email
+        try {
+            account = await Users.find({email: email}, {password: 0, sessionToken: 0}).exec()
+        } catch {
+            res.status(401).send('Error creating request')
+        }
+    } else {
+        var username = req.body.username
+        try {
+            account = await Users.find({username: username}, {password: 0, sessionToken: 0}).exec()
+        } catch {
+            res.status(401).send('Error creating request')
+        }
+    }
+    console.log(account)
+    try {
+        var code = Math.random()
+        .toString(36)
+        .substr(2, 6);
+        var resetToken = jwt.sign({username: account.username, email: account.email, code: 12345}, process.env.AUTH_SERVER_SECRET, {expiresIn: '5m'})
+        console.log(resetToken)
+        var newAccount = await Users.findOneAndUpdate(account, {resetToken: resetToken})
+        res.send(newAccount)
+    }
+    catch (err) {
+        console.log(err)
+        res.send('Failed to Update User')
+    }
+})
 
 app.get("/test", (req, res) => {
   bcrypt

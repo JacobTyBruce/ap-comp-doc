@@ -13,6 +13,7 @@
               <v-checkbox label='Remember Me' v-model="remember"></v-checkbox>
               
               <v-btn color='success' @click="login(username,password)">Login</v-btn>
+              <v-progress-circular v-if="loading == true" :value="loadingVal">{{loadingVal}}</v-progress-circular>
               </v-form>
             </v-card-actions>
         </v-card>
@@ -29,11 +30,14 @@ export default {
             username: '',
             password: '',
             remember: false,
-            error: false
+            error: false,
+            loading: false,
+            loadingVal: 0
         }
     },
     methods: {
         login(user,pass) {
+            this.loading = true
             var remember = this.remember
             this.$http.get(`${process.env.VUE_APP_API_URL}/api/login`, {
                 auth: {
@@ -41,14 +45,20 @@ export default {
                     password: pass
                 },
             }).then((res) => {
+                this.loadingVal = 30
                 // check for correctness
                 if (res.data === false) {
                     this.error = true
+                    this.loadingVal = 100
                 } else {
+                    this.loadingVal = 40
                   console.log(res.data)
                   this.$store.dispatch("commitLoggedIn", true)
+                  this.loadingVal = 60
                   this.$store.dispatch("commitUserAccount", res.data)
+                  this.loadingVal = 80
                   window.sessionStorage.setItem('token', res.data.access)
+                  this.loadingVal = 100
                   if (remember == true) {
                       window.localStorage.setItem('login', 'true')
                   }
@@ -60,6 +70,7 @@ export default {
             this.username = ''
             this.password = ''
             this.remember = false
+            this.loading = false
         }
     }
 }

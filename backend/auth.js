@@ -20,6 +20,7 @@ const usersSchema = new mongoose.Schema(
       userId: String,
       roles: Array,
       sessionToken: String,
+      resetToken: String
     },
     { timestamps: true }
   );
@@ -71,7 +72,7 @@ app.post('/get-access', (req, res) => {
             console.log(err)
         } else {
             // fires if valid
-            // check if in DB and a valid refresh accoding to DB
+            // check if in DB and a valid refresh according to DB
             // checks if token has all properties needed -- prevents if user manages to get refresh but does not supply all props needed
             if (!(decoded.hasOwnProperty('username') && decoded.hasOwnProperty('email') && decoded.hasOwnProperty('userId'))) {
                 // not enough info in token, not good
