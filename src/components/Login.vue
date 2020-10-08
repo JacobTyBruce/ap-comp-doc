@@ -40,41 +40,74 @@
             transition="dialog-transition"
           >
             <template v-slot:activator="{ on }">
-              <v-btn text v-on="on">Forgot Username or Password?</v-btn>
+              <v-btn text v-on="on" @click="page1 = true">Forgot Username or Password?</v-btn>
             </template>
             <v-card>
-              <v-btn icon
-                ><v-icon @click="dialog = !dialog">mdi-close</v-icon></v-btn
-              >
-              <v-card-title> Select Your Problem </v-card-title>
-              <v-card-actions>
-                <v-btn> Forgot Username </v-btn> <v-spacer />
-                <v-btn>Forgot Password </v-btn>
-              </v-card-actions>
-              <v-card-actions>
-                      <v-text-field label='Enter Account Email' class='mr-4'></v-text-field>
-                      <v-btn>Send Reset Email</v-btn>
-              </v-card-actions>
-              <v-card-actions class='text-center'>
-                <v-form>
-                    <v-text-field label='Enter Code'></v-text-field>
-                  <v-btn>Enter</v-btn>
-                </v-form>
-              </v-card-actions>
-              <v-card-actions v-if="resetUsername">
-                  <v-form>
-                  <v-text-field label='Enter New Username'></v-text-field>
-                  <v-text-field label='Confirm New Username'></v-text-field>
-                  <v-btn>Submit</v-btn>
-                  </v-form>
-              </v-card-actions>
-              <v-card-actions v-if="resetPassword">
-                  <v-form>
-                  <v-text-field label='Enter New Password'></v-text-field>
-                  <v-text-field label='Confirm New Password'></v-text-field>
-                  <v-btn>Submit</v-btn>
-                  </v-form>
-              </v-card-actions>
+              <v-container>
+                <v-btn icon
+                  ><v-icon @click="dialog = !dialog; page1=page2=page3=page4=resetUsername=resetPassword = false">mdi-close</v-icon></v-btn
+                >
+                <v-row justify="center" v-if="page1">
+                  <v-col cols="6">
+                      <v-card-title> Select Your Problem </v-card-title></v-col>
+                  </v-row>
+                <v-row v-if="page1">
+                  <v-col cols="12">
+                    <v-card-actions>
+                      <v-btn @click="page1 = false; page2 = true; resetUsername=true"> Forgot Username </v-btn> <v-spacer />
+                      <v-btn @click="page1 = false; page2 = true; resetPassword=true">Forgot Password </v-btn>
+                    </v-card-actions>
+                  </v-col>
+                </v-row>
+                <v-row v-if="page2">
+                  <v-col cols="12">
+                    <v-card-actions>
+                      <v-text-field
+                        label="Enter Account Email"
+                        class="mr-4"
+                        v-model="resetEmail"
+                      ></v-text-field>
+                      <v-btn @click="page2 = false; page3 = true">Send Reset Email</v-btn>
+                    </v-card-actions>
+                  </v-col>
+                </v-row>
+                <v-row align="center" justify="center" class="text-center" v-if="page3">
+                  <v-col cols="6">
+                    <v-card-actions class="text-center">
+                      <v-form>
+                        <v-text-field label="Enter Code" v-model="resetCode"></v-text-field>
+                        <v-btn @click="page3 = false; page4 = true">Enter</v-btn>
+                      </v-form>
+                    </v-card-actions>
+                  </v-col>
+                </v-row>
+                <v-row justify="center" align="center" v-if="page4 && resetUsername">
+                  <v-col cols="6">
+                    <v-card-actions>
+                      <v-form class="text-center">
+                        <v-text-field label="Enter New Username"></v-text-field>
+                        <v-text-field
+                          label="Confirm New Username"
+                        ></v-text-field>
+                        <v-btn @click="page4 = false; dialog=!dialog; resetUsername=false">Submit</v-btn>
+                      </v-form>
+                    </v-card-actions>
+                  </v-col>
+                </v-row>
+                <v-row justify="center" align="center" v-if="page4 && resetPassword">
+                  <v-col cols="6">
+                    <v-card-actions>
+                      <v-form class="text-center">
+                        <v-text-field label="Enter New Password"></v-text-field>
+                        <v-text-field
+                          label="Confirm New Password"
+                        ></v-text-field>
+                        <v-btn @click="page4 = false; dialog=!dialog;resetPassword = false">Submit</v-btn>
+                      </v-form>
+                    </v-card-actions>
+                  </v-col>
+                </v-row>
+              </v-container>
             </v-card>
           </v-dialog>
         </v-card>
@@ -93,11 +126,17 @@ export default {
       remember: false,
       error: false,
       loading: false,
+      // dialog data
       dialog: false,
-      resetUsername: true,
+      resetUsername: false,
       resetPassword: false,
       resetEmail: "",
-      resetCode: null
+      resetCode: null,
+      newData: "",
+      page1: true,
+      page2: false,
+      page3: false,
+      page4: false,
     };
   },
   methods: {
