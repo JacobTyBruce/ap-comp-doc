@@ -21,6 +21,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.2",
     "mongoose": "^5.10.5",
+    "nodemailer": "^6.4.13",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vuetify": "^2.3.10",
