@@ -85,6 +85,9 @@ export default {
               console.log(result)
               console.log(result.data)
               this.result = result.data
+          }).catch((err) => {
+            console.log(result)
+            this.result = 'Error Updating, Please Try Agian or Sign Back In'
           })
       }
   },

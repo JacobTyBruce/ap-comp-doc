@@ -54,7 +54,7 @@ app.post('/get-refresh', (req, res) => {
         userId: req.body.userId,
         roles: req.body.roles
     }
-    var token = jwt.sign(acc, process.env.AUTH_SERVER_SECRET, { expiresIn: '30s' })
+    var token = jwt.sign(acc, process.env.AUTH_SERVER_SECRET, { expiresIn: '2m' })
     res.status(201).send(token)
     console.log("Refresh Token: " + token)
     console.log('Refresh Token Sent')
@@ -152,8 +152,26 @@ app.post('/verify-token', (req, res) => {
 })
 
 app.post('/decode', (req, res) => {
+    console.log('Decoding')
     var decodedToken = jwt.decode(req.body.token, process.env.AUTH_SERVER_SECRET)
     res.send(decodedToken)
+    console.log(decodedToken)
+})
+
+app.post('/verify', async (req,res) => {
+    try {
+        var decoded = jwt.verify(req.body.token, process.env.AUTH_SERVER_SECRET)
+        res.status(200).send('Valid Token')
+    } catch (err) {
+        console.log(err)
+        res.status(401).send('Bad Token')
+    }
+})
+
+app.get('/reset-token', (req,res) => {
+    var code = Math.random().toString(10).substring(2,7)
+    var resetToken = jwt.sign({code: code}, process.env.AUTH_SERVER_SECRET, {expiresIn: '15m'})
+    res.status(201).send(resetToken)
 })
 
 app.listen(8082, () => {

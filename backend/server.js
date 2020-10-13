@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const axios = require("axios");
 const cookieParser = require("cookie-parser");
 const jwt = require('jsonwebtoken')
+const nodemailer = require('nodemailer')
 
 const dbName = process.env.DB_NAME;
 const dbUser = process.env.DB_USER;
@@ -74,7 +75,9 @@ const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 
 // token verification middleware
-const verifyToken = function verifyToken(req, res, next) {
+// add role check support
+function verifyToken(role) {
+  return function (req, res, next) {
 
   // get access token from header
   var accessToken = req.headers.authorization.split(" ")[1]
@@ -108,7 +111,7 @@ const verifyToken = function verifyToken(req, res, next) {
       }
     }
   })
-}
+}}
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -276,7 +279,7 @@ app.get("/api/login", async (req, res) => {
           var username = auth.substring(0, auth.indexOf(":"));
           var password = auth.substring(auth.indexOf(":") + 1, auth.length);
           // find account -- do not return password and sessionToken is not returned because it will mess up search later
-          var account = await Users.find({ username: username }, {sessionToken: 0})
+          var account = await Users.find({ username: username }, { sessionToken: 0 })
           // validate password
           var result = await bcrypt.compare(password, account[0].password)
           console.log(result)
@@ -287,12 +290,12 @@ app.get("/api/login", async (req, res) => {
             var refreshToken = await axios.post(`${process.env.AUTH_SERVER_URL}/get-refresh`, account[0])
             console.log(refreshToken.data)
             // set refresh in user account -- enables auth server search
-            var setRefresh = await Users.updateOne(account[0], { $set: { sessionToken: refreshToken.data } }, {new: true})
+            var setRefresh = await Users.updateOne(account[0], { $set: { sessionToken: refreshToken.data } }, { new: true })
             console.log(setRefresh)
             // set cookie
             res.cookie("token", refreshToken.data, { httpOnly: true });
             // get access
-            var accessToken = axios.post(`${process.env.AUTH_SERVER_URL}/get-access`, {token: refreshToken})
+            var accessToken = axios.post(`${process.env.AUTH_SERVER_URL}/get-access`, { token: refreshToken })
             // send response 
             res.status(200).send({
               username: account[0].username,
@@ -439,49 +442,128 @@ app.get("/api/logout", (req, res) => {
 });
 
 app.post('/api/set-reset', async (req, res) => {
-  var account;
-  // checks for username or email
-  if (req.body.hasOwnProperty('email')) {
-    var email = req.body.email
-    try {
-      account = await Users.find({ email: email }, { password: 0, sessionToken: 0 }).exec()
-    } catch {
-      res.status(401).send('Error creating request')
-    }
-  } else {
-    var username = req.body.username
-    try {
-      account = await Users.find({ username: username }, { password: 0, sessionToken: 0 }).exec()
-    } catch {
-      res.status(401).send('Error creating request')
-    }
-  }
-  console.log(account)
+  var email = req.body.email
+  console.log(email)
   try {
-    var code = Math.random()
-      .toString(36)
-      .substr(2, 6);
-    var resetToken = jwt.sign({ username: account.username, email: account.email, code: 12345 }, process.env.AUTH_SERVER_SECRET, { expiresIn: '5m' })
-    console.log(resetToken)
-    var newAccount = await Users.findOneAndUpdate(account, { resetToken: resetToken })
-    res.send(newAccount)
-  }
-  catch (err) {
-    console.log(err)
-    res.send('Failed to Update User')
+    // get reset token
+    var resetToken = await axios.get(`${process.env.AUTH_SERVER_URL}/reset-token`)
+    console.log('Got Reset Token')
+    var resetCode = await axios.post(`${process.env.AUTH_SERVER_URL}/decode`, {token: resetToken.data})
+    console.log(resetCode)
+    // set reset token
+    var test = await Users.updateOne({ email: email }, { resetToken: resetToken.data })
+    console.log(test)
+    console.log('Set Reset Token')
+    // set nodemailer settings
+    let testAccount = await nodemailer.createTestAccount();
+
+    let transporter = nodemailer.createTransport({
+      host: 'smtp.ethereal.email',
+      port: 587,
+      secure: false,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass
+      }
+    })
+    // send email
+    let info = await transporter.sendMail({
+      from: `"Boo 👻" <${process.env.EMAIL_USER}>`, // sender address
+      to: "jakobitheonly@gmail.com", // list of receivers
+      subject: "Hello ✔", // Subject line
+      text: "Hello world?", // plain text body
+      html: `<b>${resetCode.data.code}</b>`, // html body
+    });
+  
+    console.log("Message sent: %s", info.messageId);
+    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    res.send('Sent and Updated')
+
+  } catch (error) {
+    console.log(error)
+    res.send(500).send('Error Creating Reset Token')
   }
 })
 
-app.get("/test", (req, res) => {
-  bcrypt
-    .compare(
-      "$2b$12$5j1SZKX/G85Sqru/XU4elejnNvIOdt8hjazDWj334Ge9s7OkRaXqC",
-      "$2b$12$Kw3epUaGJRxJ6fACoR68y.BHkIDR0IhQfkGLCIUh4YHJRrLLDdZJi"
-    )
-    .then((result) => {
-      console.log(result);
-      res.send(result);
-    });
+app.post('/api/check-reset', async (req,res) => {
+  console.log('Checking Reset')
+  // user submitted data
+  var userCode = req.body.userCode
+  var email = req.body.email
+  // async ops
+  try {
+    // get user account from DB
+    var user = await Users.findOne({email: email})
+    // get reset token from user acc in DB - xxx.xxx.xxx
+    var resetToken = user.resetToken
+    // get code - xxxxx -- decodes this /\ to this \/
+    var resetCode = await axios.post(`${process.env.AUTH_SERVER_URL}/decode`, {token: resetToken})
+    // check if valid
+    if (userCode == resetCode.data.code) {
+      // if valid, this fires, checks if token is expired
+      axios.post(`${process.env.AUTH_SERVER_URL}/verify`, {token: resetToken})
+      res.status(200).send('Code is correct and Valid')
+    } else {
+      res.status(401).send('Token is not valid')
+    }
+  } catch (err) {
+    console.log(err)
+    res.status(500).send(err)
+  }
+})
+
+app.post('/update-account', async (req,res) => {
+  // checks if username or password -- can expanded in the future
+  var type = req.body.type
+  console.log(type)
+  // gets user email from app, is configured so that it's correct email in app
+  var email = req.body.email
+  console.log(email)
+  // new data to change
+  var newData = req.body.newData
+  console.log(newData)
+  // checks if password, then hashes it
+  if (type == 'password') {
+    newData = bcrypt.hashSync(newData, 12);
+  }
+  console.log(newData)
+  // updates user account -- in future, make all occurences of posts and docs containing old username update to new one
+  try {
+    // updates data and removes code
+    var update = await Users.updateOne({email: email}, {[type]: newData, resetToken: ""})
+    console.log(update)
+    res.status(204).send('Account Updated!')
+  } catch (err) {
+    console.log(err)
+    res.status(500).send('Error Updating Account')
+  }
+})
+
+// ---------- Test route and port ----------------
+app.get("/test", async (req, res) => {
+  let testAccount = await nodemailer.createTestAccount();
+
+  let transporter = nodemailer.createTransport({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    secure: false,
+    auth: {
+      user: testAccount.user,
+      pass: testAccount.pass
+    }
+  })
+
+  let info = await transporter.sendMail({
+    from: `"Boo 👻" <${process.env.EMAIL_USER}>`, // sender address
+    to: "jakobitheonly@gmail.com", // list of receivers
+    subject: "Hello ✔", // Subject line
+    text: "Hello world?", // plain text body
+    html: "<b>Hello world?</b>", // html body
+  });
+
+  console.log("Message sent: %s", info.messageId);
+  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  res.send('Sent')
 });
 
 app.listen(8081, () => {
