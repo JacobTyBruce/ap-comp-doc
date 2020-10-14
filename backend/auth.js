@@ -54,7 +54,7 @@ app.post('/get-refresh', (req, res) => {
         userId: req.body.userId,
         roles: req.body.roles
     }
-    var token = jwt.sign(acc, process.env.AUTH_SERVER_SECRET, { expiresIn: '1m' })
+    var token = jwt.sign(acc, process.env.AUTH_SERVER_SECRET, { expiresIn: '2m' })
     res.status(201).send(token)
     console.log("Refresh Token: " + token)
     console.log('Refresh Token Sent')

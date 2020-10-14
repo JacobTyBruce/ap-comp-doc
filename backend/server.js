@@ -472,6 +472,7 @@ app.post('/api/set-reset', async (req, res) => {
   }
 })
 
+// test route, do whatever here
 app.get("/test", (req, res) => {
   bcrypt
     .compare(

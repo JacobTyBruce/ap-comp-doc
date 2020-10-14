@@ -156,6 +156,7 @@ export default {
             this.error = true;
           } else {
             console.log(res.data);
+            // commit data
             this.$store.dispatch("commitLoggedIn", true);
             this.$store.dispatch("commitUserAccount", res.data);
             window.sessionStorage.setItem("token", res.data.access);

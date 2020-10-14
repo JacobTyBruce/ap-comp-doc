@@ -119,6 +119,7 @@ export default {
     this.$store.state.loggedIn = false;
 
     // get docs
+    // maybe not needed because each page calls its own, reducing IPL
     /*
     axios
       .get(`${process.env.VUE_APP_API_URL}/api/get/docs/?posted=true`)

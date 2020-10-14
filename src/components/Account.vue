@@ -62,6 +62,7 @@ export default {
         }
     },
     computed: {
+      // get acc
       account: function() {
         return this.$store.state.userAccount
       }
