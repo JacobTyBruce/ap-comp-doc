@@ -39,7 +39,7 @@
               <v-card>
                 <v-card-title>Dashboard</v-card-title>
                 <v-btn
-                  v-if="account.roles.includes('admin')" 
+                  v-if="this.$store.state.userAccount.roles.includes('admin')" 
                   color="orange"
                   :to="{ name: 'Admin' }"
                   >Go to Admin Console</v-btn
@@ -58,8 +58,13 @@ export default {
     name: 'Account',
     data: function() {
         return {
-            account: this.$store.state.userAccount
+            
         }
+    },
+    computed: {
+      account: function() {
+        return this.$store.state.userAccount
+      }
     },
     methods: {
         logout() {

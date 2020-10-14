@@ -99,6 +99,18 @@ export default {
     errorStatus: false,
     error: ""
   }),
+  computed: {
+    userAccount: function() {
+      return this.$store.state.userAccount
+    }
+  },
+  watch: {
+    userAccount(newVal, oldVal) {
+      if (newVal.hasOwnProperty('username')) {
+        this.errorStatus = false
+      }
+    }
+  },
   created() {
     // set theme
     this.$vuetify.theme.dark = true;
@@ -107,6 +119,7 @@ export default {
     this.$store.state.loggedIn = false;
 
     // get docs
+    /*
     axios
       .get(`${process.env.VUE_APP_API_URL}/api/get/docs/?posted=true`)
       .then((response) => {
@@ -124,7 +137,7 @@ export default {
       .catch(() => {
         alert("error getting challenges");
       });
-    // get users -- deprecate this later or change get request so no password is sent back, only relevant data
+    // get users
     axios
       .get(`${process.env.VUE_APP_API_URL}/api/get/users/all`)
       .then((response) => {
@@ -142,6 +155,7 @@ export default {
       .catch(() => {
         alert("error getting posts");
       });
+      */
     // check if login exists
     if (window.localStorage.getItem("login") == "true") {
       console.log('Sending Login to Server')
@@ -154,7 +168,7 @@ export default {
           } else {
             console.log(res.data);
             this.$store.dispatch("commitLoggedIn", true);
-            this.$store.dispatch("commitUserAccount", res.data);
+            this.$store.dispatch("commitUserAccount", res.data[0]);
           }
         })
         .catch((err) => {
