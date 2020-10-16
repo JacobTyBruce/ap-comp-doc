@@ -86,7 +86,15 @@ function verifyToken(role) {
     // if access is good, this fires
     if (!err) {
       req.body.decoded = accessResDecoded
-      next()
+      if (role == 'admin') {
+        if (accessResDecoded.roles.includes('admin')) {
+          next()
+        } else {
+          res.status(401).send('Not Authorized For This Route')
+        }
+      } else {
+        next()
+      }
       // if not, this does
     } else {
       // check if cookie (refresh) exists
@@ -94,11 +102,24 @@ function verifyToken(role) {
         // if so, get new access
         console.log('Getting new Access')
         console.log('Refresh Token: ' + req.cookies.token)
-        axios.post(`${process.env.AUTH_SERVER_URL}/get-access`, { token: req.cookies.token }).then(newAccess => {
-          res.write(newAccess)
-          console.log(res.body)
-          console.log('New Access: ' + newAccess)
-          next()
+        axios.post(`${process.env.AUTH_SERVER_URL}/get-access`, { token: req.cookies.token }).then(async (newAccess) => {
+          console.log('New Access: ' + newAccess.data)
+          try {
+            var accessDecoded = await axios.post(`${process.env.AUTH_SERVER_URL}/decode`, {token: newAccess.data})
+            console.log(accessDecoded)
+            if (role == 'admin') {
+              if (accessDecoded.data.roles.includes('admin')) {
+                next()
+              } else {
+                res.status(401).send('Not Authorized For This Route')
+              }
+            } else {
+              next()
+            }
+          } catch (err) {
+            console.log(err)
+            res.status(500).send('Error Handling Request, Please Try Again')
+          }
         }).catch(err => {
           // catches arbitrary error with getting new access
           console.log('Error getting new access')
@@ -178,7 +199,7 @@ app.get("/api/get/:col/", (req, res) => {
   }
 });
 
-app.post("/api/post/:col", verifyToken, (req, res) => {
+app.post("/api/post/:col", verifyToken('admin'), (req, res) => {
   console.log("post request");
   let collection = getCollection(req.params.col);
   if (collection == "None") {
@@ -194,7 +215,7 @@ app.post("/api/post/:col", verifyToken, (req, res) => {
   }
 });
 
-app.patch("/api/update/:col/", verifyToken, (req, res) => {
+app.patch("/api/update/:col/", verifyToken('admin'), (req, res) => {
   console.log("Patch Request");
   let collection = getCollection(req.params.col);
   if (collection == "None") {
@@ -224,7 +245,7 @@ app.patch("/api/update/:col/", verifyToken, (req, res) => {
   }
 });
 
-app.delete("/api/delete/:col", verifyToken, (req, res) => {
+app.delete("/api/delete/:col", verifyToken('admin'), (req, res) => {
   let collection = getCollection(req.params.col);
   if (collection == "None") {
     res.send(
@@ -468,7 +489,7 @@ app.post('/api/set-reset', async (req, res) => {
     })
     // send email
     let info = await transporter.sendMail({
-      from: `"Boo 👻" <${process.env.EMAIL_USER}>`, // sender address
+      from: 'Boo 👻 <jakobitheonly@gmail.com>', // sender address
       to: "jakobitheonly@gmail.com", // list of receivers
       subject: "Hello ✔", // Subject line
       text: "Hello world?", // plain text body
@@ -540,7 +561,7 @@ app.post('/update-account', async (req,res) => {
 })
 
 // ---------- Test route and port ----------------
-app.get("/test", async (req, res) => {
+app.get("/test", verifyToken('admin'), async (req, res) => {
   let testAccount = await nodemailer.createTestAccount();
 
   let transporter = nodemailer.createTransport({

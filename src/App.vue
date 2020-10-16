@@ -173,7 +173,6 @@ export default {
           }
         })
         .catch((err) => {
-          alert(err);
           console.log(err)
           this.errorStatus = true;
           this.error = "Error Logging In, Please Try Again"

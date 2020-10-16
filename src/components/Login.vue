@@ -122,7 +122,10 @@
                   <v-col cols="6">
                     <v-card-actions>
                       <v-form class="text-center">
-                        <v-text-field label="Enter New Username" v-model="newData"></v-text-field>
+                        <v-text-field
+                          label="Enter New Username"
+                          v-model="newData"
+                        ></v-text-field>
                         <v-text-field
                           label="Confirm New Username"
                         ></v-text-field>
@@ -139,7 +142,10 @@
                   <v-col cols="6">
                     <v-card-actions>
                       <v-form class="text-center">
-                        <v-text-field label="Enter New Password" v-model="newData"></v-text-field>
+                        <v-text-field
+                          label="Enter New Password"
+                          v-model="newData"
+                        ></v-text-field>
                         <v-text-field
                           label="Confirm New Password"
                         ></v-text-field>
@@ -249,15 +255,36 @@ export default {
     async submitData() {
       var type = this.resetUsername ? "username" : "password";
       try {
-        var result = await this.$http.post(
-          `${process.env.VUE_APP_API_URL}/update-account`,
-          { type: type, email: this.resetEmail, newData: this.newData }
-        );
-        console.log(result);
-        this.page4 = false;
-        this.dialog = !this.dialog;
-        this.resetPassword = false;
-        this.resetUsername = false;
+        if ((type = "username")) {
+          var validity = await this.$http.get(
+            `${process.env.VUE_APP_API_URL}/api/get/users/?username=${this.newData}`
+          );
+          console.log('Validity Data')
+          console.log(validity.data);
+          if (validity.data.length < 0) {
+            alert("Username already taken, please try another one");
+          } else {
+            var result = await this.$http.post(
+              `${process.env.VUE_APP_API_URL}/update-account`,
+              { type: type, email: this.resetEmail, newData: this.newData }
+            );
+            console.log(result);
+            this.page4 = false;
+            this.dialog = !this.dialog;
+            this.resetPassword = false;
+            this.resetUsername = false;
+          }
+        } else {
+          var result = await this.$http.post(
+            `${process.env.VUE_APP_API_URL}/update-account`,
+            { type: type, email: this.resetEmail, newData: this.newData }
+          );
+          console.log(result);
+          this.page4 = false;
+          this.dialog = !this.dialog;
+          this.resetPassword = false;
+          this.resetUsername = false;
+        }
       } catch (err) {
         console.log(err);
         alert("Error");

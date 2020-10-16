@@ -22,7 +22,7 @@ export default {
   },
   methods: {
     submitReview() {
-      alert("Subit Request Made");
+      alert("Submit Request Made");
       var request = {
         title: this.title,
         text: this.text,
