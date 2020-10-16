@@ -236,6 +236,7 @@ export default {
         this.page3 = true;
       } catch (err) {
         console.log(err);
+        alert('Error when sending email, try another or try again')
       }
     },
     async checkReset() {
@@ -287,7 +288,7 @@ export default {
         }
       } catch (err) {
         console.log(err);
-        alert("Error");
+        alert("Error Updating Account, Please Try Again");
       }
     },
   },
