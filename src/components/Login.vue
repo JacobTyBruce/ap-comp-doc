@@ -261,7 +261,7 @@ export default {
           );
           console.log('Validity Data')
           console.log(validity.data);
-          if (validity.data.length < 0) {
+          if (validity.data.length > 0) {
             alert("Username already taken, please try another one");
           } else {
             var result = await this.$http.post(
