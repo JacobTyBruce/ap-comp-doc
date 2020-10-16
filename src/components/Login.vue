@@ -40,22 +40,47 @@
             transition="dialog-transition"
           >
             <template v-slot:activator="{ on }">
-              <v-btn text v-on="on" @click="page1 = true">Forgot Username or Password?</v-btn>
+              <v-btn text v-on="on" @click="page1 = true"
+                >Forgot Username or Password?</v-btn
+              >
             </template>
             <v-card>
               <v-container>
                 <v-btn icon
-                  ><v-icon @click="dialog = !dialog; page1=page2=page3=page4=resetUsername=resetPassword = false">mdi-close</v-icon></v-btn
+                  ><v-icon
+                    @click="
+                      dialog = !dialog;
+                      page1 = page2 = page3 = page4 = resetUsername = resetPassword = false;
+                    "
+                    >mdi-close</v-icon
+                  ></v-btn
                 >
                 <v-row justify="center" v-if="page1">
                   <v-col cols="6">
-                      <v-card-title> Select Your Problem </v-card-title></v-col>
-                  </v-row>
+                    <v-card-title> Select Your Problem </v-card-title></v-col
+                  >
+                </v-row>
                 <v-row v-if="page1">
                   <v-col cols="12">
                     <v-card-actions>
-                      <v-btn @click="page1 = false; page2 = true; resetUsername=true"> Forgot Username </v-btn> <v-spacer />
-                      <v-btn @click="page1 = false; page2 = true; resetPassword=true">Forgot Password </v-btn>
+                      <v-btn
+                        @click="
+                          page1 = false;
+                          page2 = true;
+                          resetUsername = true;
+                        "
+                      >
+                        Forgot Username
+                      </v-btn>
+                      <v-spacer />
+                      <v-btn
+                        @click="
+                          page1 = false;
+                          page2 = true;
+                          resetPassword = true;
+                        "
+                        >Forgot Password
+                      </v-btn>
                     </v-card-actions>
                   </v-col>
                 </v-row>
@@ -67,42 +92,58 @@
                         class="mr-4"
                         v-model="resetEmail"
                       ></v-text-field>
-                      <v-btn @click="page2 = false; page3 = true">Send Reset Email</v-btn>
+                      <v-btn @click="sendReset()">Send Reset Email</v-btn>
                     </v-card-actions>
                   </v-col>
                 </v-row>
-                <v-row align="center" justify="center" class="text-center" v-if="page3">
+                <v-row
+                  align="center"
+                  justify="center"
+                  class="text-center"
+                  v-if="page3"
+                >
                   <v-col cols="6">
                     <v-card-actions class="text-center">
                       <v-form>
-                        <v-text-field label="Enter Code" v-model="resetCode"></v-text-field>
-                        <v-btn @click="page3 = false; page4 = true">Enter</v-btn>
+                        <v-text-field
+                          label="Enter Code"
+                          v-model="resetCode"
+                        ></v-text-field>
+                        <v-btn @click="checkReset()">Enter</v-btn>
                       </v-form>
                     </v-card-actions>
                   </v-col>
                 </v-row>
-                <v-row justify="center" align="center" v-if="page4 && resetUsername">
+                <v-row
+                  justify="center"
+                  align="center"
+                  v-if="page4 && resetUsername"
+                >
                   <v-col cols="6">
                     <v-card-actions>
                       <v-form class="text-center">
-                        <v-text-field label="Enter New Username"></v-text-field>
+                        <v-text-field label="Enter New Username" v-model="newData"></v-text-field>
                         <v-text-field
                           label="Confirm New Username"
                         ></v-text-field>
-                        <v-btn @click="page4 = false; dialog=!dialog; resetUsername=false">Submit</v-btn>
+                        <v-btn @click="submitData()">Submit</v-btn>
                       </v-form>
                     </v-card-actions>
                   </v-col>
                 </v-row>
-                <v-row justify="center" align="center" v-if="page4 && resetPassword">
+                <v-row
+                  justify="center"
+                  align="center"
+                  v-if="page4 && resetPassword"
+                >
                   <v-col cols="6">
                     <v-card-actions>
                       <v-form class="text-center">
-                        <v-text-field label="Enter New Password"></v-text-field>
+                        <v-text-field label="Enter New Password" v-model="newData"></v-text-field>
                         <v-text-field
                           label="Confirm New Password"
                         ></v-text-field>
-                        <v-btn @click="page4 = false; dialog=!dialog;resetPassword = false">Submit</v-btn>
+                        <v-btn @click="submitData()">Submit</v-btn>
                       </v-form>
                     </v-card-actions>
                   </v-col>
@@ -178,6 +219,49 @@ export default {
       setTimeout(() => {
         this.loading = false;
       }, 750);
+    },
+    async sendReset() {
+      try {
+        var setReset = await this.$http.post(
+          `${process.env.VUE_APP_API_URL}/api/set-reset`,
+          { email: this.resetEmail }
+        );
+        this.page2 = false;
+        this.page3 = true;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async checkReset() {
+      try {
+        var result = await this.$http.post(
+          `${process.env.VUE_APP_API_URL}/api/check-reset`,
+          { email: this.resetEmail, userCode: this.resetCode }
+        );
+        console.log(result);
+        this.page3 = false;
+        this.page4 = true;
+      } catch (err) {
+        console.log(err);
+        alert("Bad Code");
+      }
+    },
+    async submitData() {
+      var type = this.resetUsername ? "username" : "password";
+      try {
+        var result = await this.$http.post(
+          `${process.env.VUE_APP_API_URL}/update-account`,
+          { type: type, email: this.resetEmail, newData: this.newData }
+        );
+        console.log(result);
+        this.page4 = false;
+        this.dialog = !this.dialog;
+        this.resetPassword = false;
+        this.resetUsername = false;
+      } catch (err) {
+        console.log(err);
+        alert("Error");
+      }
     },
   },
 };
