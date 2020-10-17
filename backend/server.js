@@ -83,11 +83,12 @@ function verifyToken(role) {
   var accessToken = req.headers.authorization.split(" ")[1]
   // check if access is good
   jwt.verify(accessToken, process.env.AUTH_SERVER_SECRET, (accessResDecoded, err) => {
+      console.log(accessResDecoded)
     // if access is good, this fires
     if (!err) {
       req.body.decoded = accessResDecoded
       if (role == 'admin') {
-        if (accessResDecoded.roles.includes('admin')) {
+        if (accessResDecoded.data.roles.includes('admin')) {
           next()
         } else {
           res.status(401).send('Not Authorized For This Route')

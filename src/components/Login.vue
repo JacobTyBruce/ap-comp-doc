@@ -19,6 +19,7 @@
                 label="Password"
                 v-model="password"
                 outlined
+                :type="'password'"
               ></v-text-field>
               <v-alert type="error" v-if="error == true"
                 >Wrong Password or Username</v-alert
