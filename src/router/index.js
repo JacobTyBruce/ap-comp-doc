@@ -20,6 +20,7 @@ import DocCreator from '../components/DocCreator.vue'
 import ChallengeCreator from '../components/ChallengeCreator.vue'
 import Review from '../components/Review.vue'
 import Update from '../components/Update.vue'
+import TextEditor from '../components/TextEditor.vue'
 
 Vue.use(VueRouter)
 
@@ -103,24 +104,28 @@ Vue.use(VueRouter)
       },
       children: [
           {
-              path: 'create-post',
-              component: PostCreator
+            path: 'create-post',
+            component: PostCreator
           },
           {
-              path: 'create-doc',
-              component: DocCreator
+            path: 'create-doc',
+            component: DocCreator
           },
           {
-              path: 'create-challenge',
-              component: ChallengeCreator
+            path: 'create-challenge',
+            component: ChallengeCreator
           },
           {
-              path: 'review',
-              component: Review
+            path: 'review',
+            component: Review
           },
           {
-              path: 'update',
-              component: Update
+            path: 'update',
+            component: Update
+          },
+          {
+            path: 'text-editor',
+            component: TextEditor
           }
       ]
   }
