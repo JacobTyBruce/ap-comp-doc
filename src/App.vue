@@ -106,7 +106,7 @@ export default {
   },
   watch: {
     userAccount(newVal, oldVal) {
-      if (newVal.hasOwnProperty('username')) {
+      if (Object.hasOwnProperty.call(newVal,'username')) {
         this.errorStatus = false
       }
     }
@@ -159,7 +159,7 @@ export default {
       */
     // check if login exists
     if (window.localStorage.getItem("login") == "true") {
-      console.log('Sending Login to Server')
+      console.log('Sending Login to Server');
       this.$http
         .get(`${process.env.VUE_APP_API_URL}/api/login`)
         .then((res) => {
@@ -173,7 +173,7 @@ export default {
           }
         })
         .catch((err) => {
-          console.log(err)
+          console.log(err);
           this.errorStatus = true;
           this.error = "Error Logging In, Please Try Again"
           window.localStorage.removeItem('login')

@@ -234,12 +234,15 @@ app.patch("/api/update/:col/", verifyToken('admin'), (req, res) => {
         });
     } else {
       console.log("Not all");
+      console.log(req.body.query)
+      console.log(req.body.replace)
       collection.findOneAndUpdate(
         req.body.query,
         req.body.replace,
         { new: true },
         (err, doc) => {
           res.send(doc);
+          console.log(doc)
         }
       );
     }

@@ -261,7 +261,7 @@ export default {
           var validity = await this.$http.get(
             `${process.env.VUE_APP_API_URL}/api/get/users/?username=${this.newData}`
           );
-          console.log('Validity Data')
+          console.log('Validity Data');
           console.log(validity.data);
           if (validity.data.length > 0) {
             alert("Username already taken, please try another one");

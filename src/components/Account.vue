@@ -71,12 +71,12 @@ export default {
         logout() {
             this.$http.get(`${process.env.VUE_APP_API_URL}/api/logout`).then(() => {
                this.$store.dispatch("commitLoggedIn", false)
-                this.$store.dispatch("commitUserAccount", null)
+                this.$store.dispatch("commitUserAccount", {})
                 this.$router.push({name: 'Home'})
                 window.sessionStorage.removeItem('token')
                 window.localStorage.removeItem('login')
             }).catch(err => {
-                console.log(err)
+                console.log(err);
             })
         }    
     }
