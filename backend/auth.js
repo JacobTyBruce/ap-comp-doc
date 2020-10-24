@@ -54,7 +54,7 @@ app.post('/get-refresh', (req, res) => {
         userId: req.body.userId,
         roles: req.body.roles
     }
-    var token = jwt.sign(acc, process.env.AUTH_SERVER_SECRET, { expiresIn: process.env.REFRESH_TIME })
+    var token = jwt.sign(acc, process.env.AUTH_SERVER_SECRET, { expiresIn: `${process.env.REFRESH_TIME}` })
     res.status(201).send(token)
     console.log("Refresh Token: " + token)
     console.log('Refresh Token Sent')
@@ -107,7 +107,7 @@ app.post('/get-access', (req, res) => {
                     if (account.sessionToken.includes(req.body.token)) {
                         console.log('Same Token')
                     // sends token with info from DB to ensure correct data
-                    newAccess = jwt.sign({ type: 'Access', roles: account.roles }, process.env.AUTH_SERVER_SECRET, { expiresIn: process.env.ACCESS_TIME })
+                    newAccess = jwt.sign({ type: 'Access', roles: account.roles }, process.env.AUTH_SERVER_SECRET, { expiresIn: `${process.env.ACCESS_TIME}` })
                     res.status(201).send(newAccess)
                     } else {
                         console.log('Not right refresh')
