@@ -1,18 +1,27 @@
 <template>
   <v-container>
     <v-row align="center" justify="start">
+      <v-col
+        v-for="(doc, index) in this.$store.state.docs"
+        :key="index"
+        cols="12"
+        sm="6"
+        md="6"
+        lg="6"
+        xl="4"
+      >
         <v-card
-          v-for="(doc, index) in this.$store.state.docs"
-          :key="index"
-          width="30%"
           class="ma-2"
+          color="secondary"
         >
-          <v-card-title>{{doc.title}}</v-card-title>
-          <v-card-subtitle>{{doc.desc}}</v-card-subtitle>
+          <v-card-title :class="headerColor">{{doc.title}}</v-card-title>
+          <v-card-text class="" v-html="doc.desc"></v-card-text>
           <v-card-actions>
-            <v-btn @click="navigate(doc)">Go</v-btn>
+            <v-btn @click="navigate(doc)" color="info">Go</v-btn>
           </v-card-actions>
         </v-card>
+      </v-col>
+        
     </v-row>
   </v-container>
 </template>
@@ -20,6 +29,11 @@
 <script>
 export default {
   name: "Docs",
+  computed: {
+    headerColor: function() {
+      return (this.$vuetify.theme.dark) ? 'secondary mb-1' : 'secondary darken-1 mb-1'
+    }
+  },
   methods: {
     navigate: function (doc) {
       this.$store.dispatch("commitCurrentDataSet", doc);

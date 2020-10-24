@@ -19,7 +19,7 @@ const usersSchema = new mongoose.Schema(
       password: String,
       userId: String,
       roles: Array,
-      sessionToken: String,
+      sessionToken: Array,
       resetToken: String
     },
     { timestamps: true }
@@ -54,7 +54,7 @@ app.post('/get-refresh', (req, res) => {
         userId: req.body.userId,
         roles: req.body.roles
     }
-    var token = jwt.sign(acc, process.env.AUTH_SERVER_SECRET, { expiresIn: '1h' })
+    var token = jwt.sign(acc, process.env.AUTH_SERVER_SECRET, { expiresIn: process.env.REFRESH_TIME })
     res.status(201).send(token)
     console.log("Refresh Token: " + token)
     console.log('Refresh Token Sent')
@@ -102,12 +102,12 @@ app.post('/get-access', (req, res) => {
                 if (account.username == decoded.username && account.email == decoded.email && account.userId == decoded.userId) {
                     console.log('Accounts Match')
                     console.log('Request Token: '+req.body.token)
-                    console.log('DB Token: '+account.sessionToken)
+                    console.log(account)
                     // checks if refresh sent is the one in the DB
-                    if (req.body.token == account.sessionToken) {
+                    if (account.sessionToken.includes(req.body.token)) {
                         console.log('Same Token')
                     // sends token with info from DB to ensure correct data
-                    newAccess = jwt.sign({ type: 'Access', roles: account.roles }, process.env.AUTH_SERVER_SECRET, { expiresIn: '30m' })
+                    newAccess = jwt.sign({ type: 'Access', roles: account.roles }, process.env.AUTH_SERVER_SECRET, { expiresIn: process.env.ACCESS_TIME })
                     res.status(201).send(newAccess)
                     } else {
                         console.log('Not right refresh')

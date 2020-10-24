@@ -127,6 +127,8 @@
           label="Format: Title,URL;"
           :value="Object.entries(currentData.ref).join(';')"
           @input="
+          newData.ref = {}
+          currentData.ref={}
             $event.split(';').forEach((item) => {
   newData.ref[item.split(',')[0]] = item.split(',')[1]
 });

@@ -1,22 +1,27 @@
 <template>
   <v-container>
     <v-row align="stretch" justify="start">
+      <v-col
+        v-for="(challenge, index) in this.$store.state.challenges"
+        :key="index"
+        cols="12"
+        sm="6"
+        md="6"
+        lg="6"
+        xl="4"
+      >
         <v-card
-          v-for="(challenge, index) in this.$store.state.challenges"
-          :key="index"
-          width="40%"
-          class="ma-4"
+          color="secondary"
         >
-        <v-container>
-          <v-row><v-card-title>{{challenge.title}}</v-card-title></v-row>
-          <v-row><v-card-subtitle>{{challenge.desc}}</v-card-subtitle></v-row>
-          <v-row><v-divider /></v-row>
-          <v-row>
+          <v-card-title :class="headerColor">{{challenge.title}}</v-card-title>
+          <v-card-text>{{challenge.desc}}</v-card-text>
+          <v-divider />
           <v-card-actions>
-            <v-btn @click="navigate(challenge)">Go</v-btn>
-          </v-card-actions></v-row>
-        </v-container>
+            <v-btn @click="navigate(challenge)" color="info">Go</v-btn>
+          </v-card-actions>
         </v-card>
+
+      </v-col>
     </v-row>
   </v-container>
 </template>
@@ -24,6 +29,11 @@
 <script>
 export default {
   name: "Challenges",
+  computed: {
+    headerColor: function() {
+      return (this.$vuetify.theme.dark) ? 'secondary mb-1' : 'secondary darken-1 mb-1'
+    }
+  },
   methods: {
     navigate: function (challenge) {
       this.$store.dispatch("commitCurrentDataSet", challenge);

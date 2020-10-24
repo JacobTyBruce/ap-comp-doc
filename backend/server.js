@@ -42,7 +42,7 @@ const usersSchema = new mongoose.Schema(
     password: String,
     userId: String,
     roles: Array,
-    sessionToken: String,
+    sessionToken: Array,
     resetToken: String
   },
   { timestamps: true }
@@ -194,7 +194,7 @@ app.get("/api/get/:col/", (req, res) => {
       "Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col
     );
   } else {
-    collection.find(query, { password: 0, sessionToken: 0 }).then((data) => {
+    collection.find(query, { password: 0, sessionToken: 0 }).sort({'updatedAt': -1}).then((data) => {
       res.send(data);
     });
   }
@@ -241,8 +241,12 @@ app.patch("/api/update/:col/", verifyToken('admin'), (req, res) => {
         req.body.replace,
         { new: true },
         (err, doc) => {
-          res.send(doc);
-          console.log(doc)
+          if (err) {res.status(500).send(err)} 
+          else {
+            res.send(doc);
+            console.log(doc)
+          }
+          
         }
       );
     }
@@ -315,7 +319,7 @@ app.get("/api/login", async (req, res) => {
             var refreshToken = await axios.post(`${process.env.AUTH_SERVER_URL}/get-refresh`, account[0])
             console.log(refreshToken.data)
             // set refresh in user account -- enables auth server search
-            var setRefresh = await Users.updateOne(account[0], { $set: { sessionToken: refreshToken.data } }, { new: true })
+            var setRefresh = await Users.updateOne(account[0], { $push: { sessionToken: refreshToken.data } }, { new: true })
             console.log(setRefresh)
             // set cookie
             res.cookie("token", refreshToken.data, { httpOnly: true });
@@ -364,7 +368,7 @@ app.get("/api/login", async (req, res) => {
                   username: account[0].username,
                   userId: account[0].userId,
                 },
-                { $set: { sessionToken: refreshTokenRes.data } },
+                { $push: { sessionToken: refreshTokenRes.data } },
                 { new: true }
               ).exec();
               // set cookie
@@ -459,7 +463,7 @@ app.get("/api/logout", (req, res) => {
     .post(`${process.env.AUTH_SERVER_URL}/decode`, { token: req.cookies.token })
     .then((decoded) => {
       console.log("Removing Session Token from User Account");
-      Users.updateOne({ username: decoded.data.username, userId: decoded.data.userId }, { sessionToken: "" })
+      Users.updateOne({ username: decoded.data.username, userId: decoded.data.userId }, { $pull: {sessionToken: req.cookies.token} })
         .exec();
       console.log("Removed Session Token from User Account");
     })

@@ -1,6 +1,6 @@
   
 <template>
-  <v-app id="inspire">
+  <v-app id="inspire" :style="{background: $vuetify.theme.themes[theme].background}">
     <v-navigation-drawer v-model="drawer" app clipped>
       <v-list dense>
         <!-- Home -->
@@ -30,15 +30,6 @@
             <v-list-item-title>Challenges</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <!-- Topics -->
-        <v-list-item link :to="{name: 'Topics'}" @click.stop="drawer = false">
-          <v-list-item-action>
-            <v-icon>mdi-view-dashboard</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Topics</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
         <!-- Posts -->
         <v-list-item link :to="{name: 'Posts'}" @click.stop="drawer = false">
           <v-list-item-action>
@@ -48,6 +39,16 @@
             <v-list-item-title>Posts</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+         <!-- Topics -->
+        <v-list-item link :to="{name: 'Topics'}" @click.stop="drawer = false">
+          <v-list-item-action>
+            <v-icon>mdi-view-dashboard</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Topics</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        
         <!-- Help -->
         <v-list-item link :to="{name: 'Help'}" @click.stop="drawer = false">
           <v-list-item-action>
@@ -61,8 +62,8 @@
     </v-navigation-drawer>
 
     <!-- Make login slide from side rather than seperate page -->
-    <v-app-bar app clipped-left>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+    <v-app-bar app clipped-left color="primary" class="white--text">
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer" color="accent"></v-app-bar-nav-icon>
       <v-toolbar-title>{{this.appName}}</v-toolbar-title>
       <v-spacer></v-spacer>
       <p style='color:red' v-if="this.errorStatus == true">{{this.error}}</p>
@@ -95,13 +96,18 @@ export default {
   },
   data: () => ({
     drawer: null,
-    appName: "Totally Non-conspicuous App",
     errorStatus: false,
-    error: ""
+    error: "",
   }),
   computed: {
-    userAccount: function() {
+    userAccount() {
       return this.$store.state.userAccount
+    },
+    theme() {
+      return (this.$vuetify.theme.dark) ? 'dark' : 'light'
+    },
+    appName() {
+      return (this.$vuetify.breakpoint.name == 'xs') ? 'AP Comp Doc' : 'AP Computer Science'
     }
   },
   watch: {
@@ -111,52 +117,13 @@ export default {
       }
     }
   },
-  created() {
+  async created() {
     // set theme
     this.$vuetify.theme.dark = true;
 
     // set logged in status -- make logic later with stored 'remember me'
     this.$store.state.loggedIn = false;
 
-    // get docs
-    // maybe not needed because each page calls its own, reducing IPL
-    /*
-    axios
-      .get(`${process.env.VUE_APP_API_URL}/api/get/docs/?posted=true`)
-      .then((response) => {
-        this.$store.dispatch("commitDocs", response.data);
-      })
-      .catch((error) => {
-        alert("error getting docs");
-      });
-    // get challenges
-    axios
-      .get(`${process.env.VUE_APP_API_URL}/api/get/challenges/?posted=true`)
-      .then((response) => {
-        this.$store.dispatch("commitChallenges", response.data);
-      })
-      .catch(() => {
-        alert("error getting challenges");
-      });
-    // get users
-    axios
-      .get(`${process.env.VUE_APP_API_URL}/api/get/users/all`)
-      .then((response) => {
-        this.$store.dispatch("commitUsers", response.data);
-      })
-      .catch(() => {
-        alert("error getting users");
-      });
-    // get posts
-    axios
-      .get(`${process.env.VUE_APP_API_URL}/api/get/posts/?posted=true`)
-      .then((response) => {
-        this.$store.dispatch("commitPosts", response.data);
-      })
-      .catch(() => {
-        alert("error getting posts");
-      });
-      */
     // check if login exists
     if (window.localStorage.getItem("login") == "true") {
       console.log('Sending Login to Server');
@@ -182,3 +149,9 @@ export default {
   },
 };
 </script>
+
+<style>
+  html{
+    overflow-y: auto;
+  } 
+</style>
