@@ -1,7 +1,7 @@
   
 <template>
   <v-app id="inspire" :style="{background: $vuetify.theme.themes[theme].background}">
-    <v-navigation-drawer v-model="drawer" app clipped>
+    <v-navigation-drawer v-model="drawer" app clipped color="secondary">
       <v-list dense>
         <!-- Home -->
         <v-list-item link :to="{name: 'Home'}" @click.stop="drawer = false">
@@ -40,7 +40,7 @@
           </v-list-item-content>
         </v-list-item>
          <!-- Topics -->
-        <v-list-item link :to="{name: 'Topics'}" @click.stop="drawer = false">
+        <v-list-item link :to="{name: 'Topics'}" @click.stop="drawer = false" disabled>
           <v-list-item-action>
             <v-icon>mdi-view-dashboard</v-icon>
           </v-list-item-action>
@@ -81,8 +81,8 @@
       <router-view />
     </v-main>
 
-    <v-footer app>
-      <span>&copy; {{ new Date().getFullYear() }}</span>
+    <v-footer app color="secondary">
+      <span>&copy; {{ new Date().getFullYear() }}</span><v-spacer/><v-icon @click="spooky()">mdi-bat</v-icon>
     </v-footer>
   </v-app>
 </template>
@@ -107,7 +107,7 @@ export default {
       return (this.$vuetify.theme.dark) ? 'dark' : 'light'
     },
     appName() {
-      return (this.$vuetify.breakpoint.name == 'xs') ? 'AP Comp Doc' : 'AP Computer Science'
+      return (this.$vuetify.breakpoint.name == 'xs') ? 'AP Comp Doc' : 'AP Computer Science Doc'
     }
   },
   watch: {
@@ -147,6 +147,16 @@ export default {
         });
     }
   },
+  methods: {
+    spooky() {
+      this.$vuetify.theme.themes.light.background = "#B14623"
+      this.$vuetify.theme.themes.light.primary = "#602749"
+      this.$vuetify.theme.themes.light.secondary = "#F6921D"
+      this.$vuetify.theme.themes.dark.background = "#130912"
+      this.$vuetify.theme.themes.dark.primary = "#B14623"
+      this.$vuetify.theme.themes.dark.secondary = "#3E1C33"
+    }
+  }
 };
 </script>
 

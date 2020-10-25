@@ -28,6 +28,7 @@
                 <v-card-title>
                   Your Posts
                 </v-card-title>
+                <v-card-subtitle><v-divider/></v-card-subtitle>
                 <v-card-text v-if="posts.length == 0">No Posts :(</v-card-text>
 
                 <v-hover v-for="post in posts" :key="post._id" v-slot="{ hover }">

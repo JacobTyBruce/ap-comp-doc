@@ -12,7 +12,7 @@
     </v-col>
     <v-row>
       <v-carousel cycle :show-arrows="false" hide-delimiter-background delimiter-icon="mdi-minus">
-        <v-carousel-item v-for="(slide, i) in latestPosts" :key="i">
+        <v-carousel-item v-for="(slide, i) in latestPosts" :key="i" @click="navigate(slide)">
           <v-sheet height="100%" tile>
             <v-row class="fill-height" align="center" justify="center">
               <v-card flat class="ma-2">
@@ -48,6 +48,15 @@ export default {
     } catch (error) {
       console.log(error)
     }
+  },
+  methods: {
+    navigate: function (post) {
+      var type = (post.hasOwnProperty('challenge')) ? 'Challenge' : (post.hasOwnProperty('desc')) ? 'Doc' : 'Post';
+        this.$store.dispatch("commitCurrentDataSet", post);
+        setTimeout(() => {
+          this.$router.push({ name: type+"Container", params: { id: post.title } });
+        }, 100)
+      },
   }
 };
 </script>

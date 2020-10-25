@@ -153,7 +153,6 @@
             newData.text = $event;
             currentData.text = $event;
           "
-          auto-grow
         ></v-textarea>
         <v-textarea
           v-if="select == 'challenge'"
@@ -162,7 +161,6 @@
             newData.challenge = $event;
             currentData.challenge = $event;
           "
-          auto-grow
         ></v-textarea>
       </v-row>
       <v-row justify="center"
