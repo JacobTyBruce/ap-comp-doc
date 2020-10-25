@@ -7,7 +7,7 @@
       <v-col v-for="items in this.reviewItems" :key="items._id" cols="4">
         <v-card>
           <v-card-title>{{items.title}}</v-card-title>
-          <v-card-subtitle>{{items.desc}}</v-card-subtitle>
+          <v-card-subtitle v-html="items.desc"></v-card-subtitle>
           <v-card-text>{{items.challenge}}</v-card-text>
           <v-card-text v-html="items.text"></v-card-text>
           <v-card-subtitle v-if="items.hasOwnProperty('postedBy')">Posted by: {{items.postedBy}}</v-card-subtitle>

@@ -1,4 +1,6 @@
 require("dotenv").config();
+const fs = require('fs');
+const https = require('https');
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
@@ -12,6 +14,14 @@ const nodemailer = require('nodemailer')
 const dbName = process.env.DB_NAME;
 const dbUser = process.env.DB_USER;
 const dbPass = process.env.DB_PASS;
+
+console.log(process.cwd())
+var key = fs.readFileSync(__dirname+process.env.KEY_PATH);
+var cert = fs.readFileSync(__dirname+process.env.CERT_PATH);
+var options = {
+  key: key,
+  cert: cert
+}
 
 // schemas for whatever youre doing
 const docSchema = new mongoose.Schema(
@@ -595,6 +605,8 @@ app.get("/test", verifyToken('admin'), async (req, res) => {
   res.send('Sent')
 });
 
-app.listen(8081, () => {
+var server = https.createServer(options, app)
+
+server.listen(8081, () => {
   console.log("Listening on port 8081");
 });

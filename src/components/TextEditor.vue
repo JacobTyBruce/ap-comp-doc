@@ -79,10 +79,10 @@
                 </template>
                 <v-card>
                     <v-card-title>{{currentData.title}}<v-spacer/><v-btn @click.stop="preview = !preview" icon><v-icon>mdi-close</v-icon></v-btn></v-card-title>
-                    <v-card-subtitle v-if="currentData.hasOwnProperty('desc')">{{currentData.desc}}</v-card-subtitle>
+                    <v-card-text v-if="currentData.hasOwnProperty('desc')" v-html="currentData.desc"></v-card-text>
                     <v-divider></v-divider>
                     <pre v-if="currentData.hasOwnProperty('challenge')" v-html='currentData.challenge'></pre>
-                    <v-card-text> {{currentData.text}}</v-card-text>
+                    <v-card-text v-html="currentData.text"></v-card-text>
                     <v-card-subtitle v-if="currentData.hasOwnProperty('tags')"><strong v-for="(tag,index) in this.currentData.tags" :key='index' class='ma-2'> {{tag}} </strong></v-card-subtitle>
                 </v-card>
             </v-dialog>
