@@ -11,9 +11,22 @@
         <v-card-text>Posted By {{this.postContent.postedBy}} at {{new Date(postContent.createdAt).toLocaleString('en-US')}}</v-card-text>
       </v-card>
     </v-row>
-    <br />
+    <br/>
     <v-row v-if="isAdmin == true" justify="center">
       <v-btn @click="deletePost" color="red">Delete</v-btn>
+    </v-row>
+    <v-row justify="center">
+      <v-col cols="12" sm="12" md="6">
+        <v-text-field label="Post A Comment" v-model="commentText"></v-text-field>
+      </v-col>
+      <v-col cols="3">
+        <v-btn color="secondary" @click="comment()">Post</v-btn>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-list>
+        <v-list-item v-for="(comment,index) in postContent.comments" :key='index'>{{comment.text}}--{{comment.postedBy}}</v-list-item>
+      </v-list>
     </v-row>
   </v-container>
 </template>
@@ -25,6 +38,7 @@ export default {
     return {
       postContent: this.$store.state.currentDataSet,
       isAdmin: false,
+      commentText: ""
     };
   },
   methods: {
@@ -41,6 +55,29 @@ export default {
           console.log(result);
         });
     },
+    async comment() {
+      try {
+        var comment = await this.$http.post(`${process.env.VUE_APP_API_URL}/api/post-comment/posts`, {
+        comment: {
+          postedBy: this.$store.state.userAccount.username,
+          text: this.commentText
+        },
+          post: this.postContent._id
+        }, {
+          headers: {
+            Authorization: `Bearer ${window.sessionStorage.getItem("token")}`
+          }
+        })
+        this.commentText = "";
+        this.postContent.comments.push({
+          postedBy: this.$store.state.userAccount.username,
+          text: this.commentText
+        })
+      } catch (error) {
+        console.log(error)
+      }
+      
+    }
   },
   beforeCreate() {
     // route back if first nav -- help with state

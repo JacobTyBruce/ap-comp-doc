@@ -24,6 +24,13 @@ var options = {
 }
 
 // schemas for whatever youre doing
+const commentSchema = new mongoose.Schema(
+  {
+    postedBy: String,
+    text: String
+  },
+  { timestamps: true }
+)
 const docSchema = new mongoose.Schema(
   {
     title: String,
@@ -32,6 +39,7 @@ const docSchema = new mongoose.Schema(
     // implement later ref: Object,
     tags: Array,
     posted: Boolean,
+    comments: [commentSchema]
   },
   { timestamps: true }
 );
@@ -42,6 +50,18 @@ const challengeSchema = new mongoose.Schema(
     challenge: String,
     text: String,
     posted: Boolean,
+    comments: [commentSchema]
+  },
+  { timestamps: true }
+);
+
+const postSchema = new mongoose.Schema(
+  {
+    title: String,
+    text: String,
+    postedBy: String,
+    posted: Boolean,
+    comments: [commentSchema]
   },
   { timestamps: true }
 );
@@ -57,15 +77,6 @@ const usersSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-const postSchema = new mongoose.Schema(
-  {
-    title: String,
-    text: String,
-    postedBy: String,
-    posted: Boolean,
-  },
-  { timestamps: true }
-);
 
 // generate model
 // model = collection !!!!!!!!!!!
@@ -75,10 +86,14 @@ const Users = mongoose.model("User", usersSchema);
 const Challenges = mongoose.model("Challenge", challengeSchema);
 const Docs = mongoose.model("Doc", docSchema);
 const Posts = mongoose.model("Post", postSchema);
+//const Comment = mongoose.model("Comment", commentSchema)
 // string to connect to mongodb, use .env for variables before uploading
 const mongo = `mongodb+srv://${dbUser}:${dbPass}@cluster0.gczfd.mongodb.net/${dbName}?retryWrites=true&w=majority`;
 // connect
-mongoose.connect(mongo, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(mongo, { 
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 // reference connection
 const db = mongoose.connection;
 // errors
@@ -97,13 +112,15 @@ function verifyToken(role) {
     // if access is good, this fires
     if (!err) {
       req.body.decoded = accessResDecoded
-      if (role == 'admin') {
-        if (accessResDecoded.data.roles.includes('admin')) {
+      // checks if special privilledge is needed
+      if (role) {
+        if (accessResDecoded.data.roles.includes(role)) {
           next()
         } else {
           res.status(401).send('Not Authorized For This Route')
         }
       } else {
+        // fires if no special perms needed
         next()
       }
       // if not, this does
@@ -225,6 +242,30 @@ app.post("/api/post/:col", verifyToken('admin'), (req, res) => {
     });
   }
 });
+
+app.post("/api/post-comment/:col", verifyToken('user'), async (req,res) => {
+  console.log('Comment Recieved');
+  console.log(req.params.col)
+  let collection = getCollection(req.params.col);
+  if (collection == "None") {
+    res.send(
+      "Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col
+    );
+  } else {
+    try {
+      // gets post
+      const post = await collection.findById(req.body.post);
+      console.log(post)
+      post.comments.push(req.body.comment);
+      const updated = await post.save()
+      console.log(updated)
+      res.status(201).send('Comment Created')
+    } catch (error) {
+      console.log(error);
+      res.status(500).send('Error Creating Comment')
+    }
+  }
+})
 
 app.patch("/api/update/:col/", verifyToken('admin'), (req, res) => {
   console.log("Patch Request");
