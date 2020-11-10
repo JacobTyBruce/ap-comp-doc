@@ -82,7 +82,7 @@
     </v-main>
 
     <v-footer app color="secondary">
-      <span>&copy; {{ new Date().getFullYear() }}</span><v-spacer/><v-icon @click="spooky()">mdi-bat</v-icon>
+      <span>&copy; {{ new Date().getFullYear() }}</span><v-btn text x-small to="/security-policy">Security Policy</v-btn><v-spacer/><v-icon @click="spooky()">mdi-bat</v-icon>
     </v-footer>
   </v-app>
 </template>
@@ -126,25 +126,28 @@ export default {
 
     // check if login exists
     if (window.localStorage.getItem("login") == "true") {
+      // fires if no session is already active but login is present in LS -- cookie is still present at this point
       console.log('Sending Login to Server');
+      // sends cookie with request
       this.$http
-        .get(`${process.env.VUE_APP_API_URL}/api/login`)
-        .then((res) => {
-          // check for correctness
-          if (res.data === false) {
-            alert("Error Logging In");
-          } else {
-            console.log(res.data);
-            this.$store.dispatch("commitLoggedIn", true);
-            this.$store.dispatch("commitUserAccount", res.data[0]);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          this.errorStatus = true;
-          this.error = "Error Logging In, Please Try Again"
-          window.localStorage.removeItem('login')
-        });
+      .get(`${process.env.VUE_APP_API_URL}/api/login`)
+      .then((res) => {
+        // check for correctness
+        if (res.data === false) {
+          alert("Error Logging In");
+        } else {
+          console.log(res.data);
+          this.$store.dispatch("commitLoggedIn", true);
+          this.$store.dispatch("commitUserAccount", res.data[0]);
+          window.localStorage.setItem('token',res.data[0].sessionToken)
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        this.errorStatus = true;
+        this.error = "Error Logging In, Please Try Again"
+        window.localStorage.removeItem('login')
+      });
     }
   },
   methods: {

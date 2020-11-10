@@ -79,7 +79,7 @@ export default {
           // call request
           this.$http.patch(urlReq, patchBody, {
             headers: {
-              'Authorization': `Bearer ${window.sessionStorage.getItem('token')}`
+              'Authorization': `Bearer ${window.localStorage.getItem('token')}`
             }
           }).then((result) => {
               console.log(result)

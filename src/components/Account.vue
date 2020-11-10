@@ -26,7 +26,7 @@
                 >
                 </v-card-actions>
                 <v-card-title>
-                  Your Posts
+                  Your Recent Posts
                 </v-card-title>
                 <v-card-subtitle><v-divider/></v-card-subtitle>
                 <v-card-text v-if="posts.length == 0">No Posts :(</v-card-text>
@@ -84,7 +84,7 @@ export default {
         return this.$store.state.userAccount
       },
     },
-    created() {
+    mounted() {
       this.$http.get(`${process.env.VUE_APP_API_URL}/api/get/posts/?postedBy=${this.$store.state.userAccount.username}`).then(data => {console.log(data.data);this.posts = data.data}).catch(err => {
         console.log(err)
       })
@@ -96,7 +96,7 @@ export default {
               this.$store.dispatch("commitLoggedIn", false)
               this.$store.dispatch("commitUserAccount", {})
               this.$router.push({name: 'Home'})
-              window.sessionStorage.removeItem('token')
+              window.localStorage.removeItem('token')
               window.localStorage.removeItem('login')
           }).catch(err => {
               console.log(err);

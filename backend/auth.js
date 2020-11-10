@@ -61,31 +61,32 @@ app.post('/get-refresh', (req, res) => {
 })
 
 app.post('/get-access', (req, res) => {
+    console.log('Getting new Access')
     // get refresh token
     var refreshToken = req.body.token
     console.log('User Refresh Token: ' + refreshToken)
-    // verify is valid
+    // verify if valid
     jwt.verify(refreshToken, process.env.AUTH_SERVER_SECRET, async (err, decoded) => {
+        console.log(decoded)
         if (err) {
-            // fires if not valid
-            res.send(err, 401)
+            // fires if not valid -- can add refresh later on with iss, but exp time is so long and refresh on each request this shouldnt be needed rn
+            res.status(401).send('Invalid Refresh')
             console.log(err)
         } else {
             // fires if valid
-            // check if in DB and a valid refresh according to DB
             // checks if token has all properties needed -- prevents if user manages to get refresh but does not supply all props needed
+
+            // check if there is a method to match against
             if (!(decoded.hasOwnProperty('username') && decoded.hasOwnProperty('email') && decoded.hasOwnProperty('userId'))) {
                 // not enough info in token, not good
                 console.log('Not enough info in token, malformed')
-                res.send('Malformed Token', 401)
-                return
+                res.status(401).send('Malformed Token')
+                return;
             } else {
                 // enough info, verified
                 console.log('Enough info')
             }
-            
-            try {
-                // get account based on info in refresh token
+                // get account based on info in refresh token -- this is purely to get roles and userId for access token
                 console.log(decoded)
                 var {username, email, userId, roles} = decoded
                 var accQuery = {
@@ -94,35 +95,36 @@ app.post('/get-access', (req, res) => {
                     userId,
                     roles
                 }
-                let account = await Users.find(accQuery, {password: 0}).exec()
-                console.log(`Account from search - ${account}`)
+                try {
+                   var account = await Users.find(accQuery, {password: 0})
+                    console.log(`Account from search - ${account}`) 
+                } catch (error) {
+                    console.log('Trouble Getting Account')
+                    console.log(error)
+                    res.status(500).send('Trouble Getting Account')
+                }
+
+                // checks if acc was actually found
+                if (account.length < 1) {
+                    console.log('No Account Match Found')
+                    res.status(400).send('No Account Found With Match')
+                    return;
+                }
                 // converts account variable to account object, info is sent back as array with one object since single user lookup
                 account = account[0]
+                console.log(account)
                 // checks if info in token and info in DB match up
                 if (account.username == decoded.username && account.email == decoded.email && account.userId == decoded.userId) {
                     console.log('Accounts Match')
                     console.log('Request Token: '+req.body.token)
                     console.log(account)
-                    // checks if refresh sent is the one in the DB
-                    if (account.sessionToken.includes(req.body.token)) {
-                        console.log('Same Token')
                     // sends token with info from DB to ensure correct data
-                    newAccess = jwt.sign({ type: 'Access', roles: account.roles }, process.env.AUTH_SERVER_SECRET, { expiresIn: `${process.env.ACCESS_TIME}` })
+                    newAccess = jwt.sign({ type: 'Access', roles: account.roles, userId: account.userId }, process.env.AUTH_SERVER_SECRET, { expiresIn: `${process.env.ACCESS_TIME}` })
                     res.status(201).send(newAccess)
-                    } else {
-                        console.log('Not right refresh')
-                        res.status(401).send('Token given does not match one in user account')
-                    }
                 } else {
                     // if info is wrong, do not issue
-                    res.send('Not valid token', 401)
+                    res.send('Info In Token Is Incorrect', 401)
                 }
-
-            } catch (err) {
-                // catches if fails
-                console.log(err)
-                res.send('Error with session, please log out of all instances', 400)
-            }
         }
 
     })

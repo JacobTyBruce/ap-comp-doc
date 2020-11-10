@@ -1,8 +1,8 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col>
-        <v-card max-width="50%">
+    <v-row justify="center" align="center">
+      <v-col cols="12" md="6">
+        <v-card>
           <v-card-title>Login</v-card-title>
           <v-card-subtitle>
             Or click <v-btn :to="{ name: 'SignUp' }" small text>Here</v-btn> To
@@ -207,7 +207,7 @@ export default {
             // commit data
             this.$store.dispatch("commitLoggedIn", true);
             this.$store.dispatch("commitUserAccount", res.data);
-            window.sessionStorage.setItem("token", res.data.access);
+            window.localStorage.setItem("token", res.data.access);
             if (remember == true) {
               window.localStorage.setItem("login", "true");
             }

@@ -11,7 +11,9 @@ export default new Vuex.Store({
     posts: Array,
     currentDataSet: Object,
     loggedIn: Boolean,
-    userAccount: Object
+    userAccount: Object,
+    errorState: false,
+    error: String
   },
   mutations: {
     populateDocs(state, arr) {

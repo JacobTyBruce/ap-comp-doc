@@ -21,6 +21,7 @@ import ChallengeCreator from '../components/ChallengeCreator.vue'
 import Review from '../components/Review.vue'
 import Update from '../components/Update.vue'
 import TextEditor from '../components/TextEditor.vue'
+import SecurityPolicy from '../components/Security.vue'
 
 Vue.use(VueRouter)
 
@@ -128,6 +129,11 @@ Vue.use(VueRouter)
             component: TextEditor
           }
       ]
+  },
+  {
+    path: '/security-policy',
+    name: 'Security-Policy',
+    component: SecurityPolicy
   }
 ]
 

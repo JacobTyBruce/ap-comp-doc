@@ -31,6 +31,20 @@
         </v-col>
       </v-row>
       <v-row justify="space-around">
+        <v-hover v-slot:default="{ hover }" v-if="type != null">
+          <v-card width="99%" class="mb-3 text-center">
+            <v-card-title
+              >Create New
+              {{
+                type.charAt(0).toUpperCase() +
+                type.substring(1, type.length - 1)
+              }}</v-card-title
+            >
+            <v-overlay :value="hover" absolute opacity=".2" color="orange">
+              <v-btn @click="setData(emptyTemplate)">Create</v-btn>
+            </v-overlay>
+          </v-card>
+        </v-hover>
         <v-hover
           v-slot:default="{ hover }"
           v-for="item in allData"
@@ -68,24 +82,39 @@
           ></v-col
         >
         <v-col cols="4">
-            <v-dialog v-model="preview">
-                <template v-slot:activator="{ on }">
-                    <v-btn
-                    color="orange"
-                    v-on="on"
-                    >
-                        Open Preview
-                    </v-btn>
-                </template>
-                <v-card>
-                    <v-card-title>{{currentData.title}}<v-spacer/><v-btn @click.stop="preview = !preview" icon><v-icon>mdi-close</v-icon></v-btn></v-card-title>
-                    <v-card-text v-if="currentData.hasOwnProperty('desc')" v-html="currentData.desc"></v-card-text>
-                    <v-divider></v-divider>
-                    <pre v-if="currentData.hasOwnProperty('challenge')" v-html='currentData.challenge'></pre>
-                    <v-card-text v-html="currentData.text"></v-card-text>
-                    <v-card-subtitle v-if="currentData.hasOwnProperty('tags')"><strong v-for="(tag,index) in this.currentData.tags" :key='index' class='ma-2'> {{tag}} </strong></v-card-subtitle>
-                </v-card>
-            </v-dialog>
+          <v-dialog v-model="preview">
+            <template v-slot:activator="{ on }">
+              <v-btn color="orange" v-on="on"> Open Preview </v-btn>
+            </template>
+            <v-card>
+              <v-card-title
+                >{{ currentData.title }}<v-spacer /><v-btn
+                  @click.stop="preview = !preview"
+                  icon
+                  ><v-icon>mdi-close</v-icon></v-btn
+                ></v-card-title
+              >
+              <v-card-text
+                v-if="currentData.hasOwnProperty('desc')"
+                v-html="currentData.desc"
+              ></v-card-text>
+              <v-divider></v-divider>
+              <pre
+                v-if="currentData.hasOwnProperty('challenge')"
+                v-html="currentData.challenge"
+              ></pre>
+              <v-card-text v-html="currentData.text"></v-card-text>
+              <v-card-subtitle v-if="currentData.hasOwnProperty('tags')"
+                ><strong
+                  v-for="(tag, index) in this.currentData.tags"
+                  :key="index"
+                  class="ma-2"
+                >
+                  {{ tag }}
+                </strong></v-card-subtitle
+              >
+            </v-card>
+          </v-dialog>
         </v-col>
         <v-col cols="4">
           <v-select
@@ -112,6 +141,7 @@
           @input="
             newData.title = $event;
             currentData.title = $event;
+            saveTitle = $event;
           "
         ></v-text-field>
         <v-text-field
@@ -127,14 +157,14 @@
           label="Format: Title,URL;"
           :value="Object.entries(currentData.ref).join(';')"
           @input="
-          newData.ref = {}
-          currentData.ref={}
+            newData.ref = {};
+            currentData.ref = {};
             $event.split(';').forEach((item) => {
-  newData.ref[item.split(',')[0]] = item.split(',')[1]
-});
+              newData.ref[item.split(',')[0]] = item.split(',')[1];
+            });
             $event.split(';').forEach((item) => {
-  currentData.ref[item.split(',')[0]] = item.split(',')[1]
-});
+              currentData.ref[item.split(',')[0]] = item.split(',')[1];
+            });
           "
         ></v-text-field>
         <v-textarea
@@ -163,15 +193,13 @@
           "
         ></v-textarea>
       </v-row>
-      <v-row justify="center"
-        ><v-btn
-          :color="saved"
-          @click="
-            saveData();
-          "
-          >Save</v-btn
-        ></v-row
-      >
+      <v-row justify="center" align="center">
+        <v-btn :color="saved" @click="saveData()" class="mr-5">Save</v-btn>
+        <v-checkbox
+          @click="newData.posted = !newData.posted"
+          label="Post Immediately?"
+        ></v-checkbox
+      ></v-row>
     </v-container>
   </v-container>
 </template>
@@ -188,12 +216,20 @@ export default {
       allData: null,
       currentData: null,
       saveTitle: null,
-      newData: {},
+      newData: { posted: false },
       docSelect: ["title", "description", "text", "tags", "ref"],
       postSelect: ["title", "text"],
       challengeSelect: ["title", "description", "challenge", "text"],
       select: null,
       saved: "orange",
+      emptyTemplate: {
+        title: "",
+        description: "",
+        text: "",
+        challenge: "",
+        tags: [],
+        ref: [],
+      },
     };
   },
   methods: {
@@ -208,6 +244,7 @@ export default {
       }
     },
     setData(item) {
+      console.log(item);
       this.selecting = false;
       this.editing = true;
       this.currentData = item;
@@ -225,17 +262,22 @@ export default {
           patchBody,
           {
             headers: {
-              Authorization: `Bearer ${window.sessionStorage.getItem("token")}`,
+              Authorization: `Bearer ${window.localStorage.getItem("token")}`,
             },
           }
         );
         console.log(result);
-        this.saved = 'green'
-        setTimeout(() => {this.saved='orange'}, 1000)
+        this.saved = "green";
+        this.saveTitle = this.currentData.title;
+        setTimeout(() => {
+          this.saved = "orange";
+        }, 1000);
       } catch (err) {
         console.error = err;
-        this.saved = 'red'
-        setTimeout(() => {this.saved='orange'}, 1000)
+        this.saved = "red";
+        setTimeout(() => {
+          this.saved = "orange";
+        }, 1000);
       }
     },
   },

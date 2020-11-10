@@ -3,7 +3,7 @@
         <v-row justify="center" align="center">
             <v-col cols='12' sm="12" md="6" lg="8" xl="6">
                 <v-card color="secondary">
-                    <v-card-title :class="bgColor"> Need Help Still? </v-card-title>
+                    <v-card-title :class="bgColor"> Need Help? </v-card-title>
                     <v-card-subtitle :class="bgColor"> Send Me An Email! </v-card-subtitle>
                         <v-form>
                             <v-container>

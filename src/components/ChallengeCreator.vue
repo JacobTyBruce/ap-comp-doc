@@ -37,7 +37,7 @@ export default {
       this.$http
         .post(`${process.env.VUE_APP_API_URL}/api/post/challenges`, request, {
           headers: {
-            Authorization: `Bearer ${window.sessionStorage.getItem("token")}`,
+            Authorization: `Bearer ${window.localStorage.getItem("token")}`,
           },
         })
         .then((data) => {

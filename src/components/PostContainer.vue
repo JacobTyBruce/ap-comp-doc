@@ -65,15 +65,28 @@ export default {
           post: this.postContent._id
         }, {
           headers: {
-            Authorization: `Bearer ${window.sessionStorage.getItem("token")}`
+            Authorization: `Bearer ${window.localStorage.getItem("token")}`
           }
         })
-        this.commentText = "";
+        console.log(comment)
+        // update comments, oush current user ones in case fetch fails, then run fetch to get new ones and update entire obj
         this.postContent.comments.push({
           postedBy: this.$store.state.userAccount.username,
           text: this.commentText
         })
+        this.commentText = "";
+        // run fetch
+        try {
+          var fetch = await this.$http.get(`${process.env.VUE_APP_API_URL}/api/get/posts/?title=${this.postContent.title}`)
+          console.log(fetch)
+          this.postContent = fetch.data[0];
+        } catch (err) {
+          // error if fetch fails
+          console.log(err)
+        }
+        console.log('Method Done')
       } catch (error) {
+        // error if post fails
         console.log(error)
       }
       
