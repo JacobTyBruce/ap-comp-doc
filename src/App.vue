@@ -58,6 +58,9 @@
             <v-list-item-title>Help</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+        <v-list-item>
+          <v-icon @click='yummy()'>mdi-food-drumstick</v-icon>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
@@ -82,7 +85,7 @@
     </v-main>
 
     <v-footer app color="secondary">
-      <span>&copy; {{ new Date().getFullYear() }}</span><v-btn text x-small to="/security-policy">Security Policy</v-btn><v-spacer/><v-icon @click="spooky()">mdi-bat</v-icon>
+      <span>&copy; {{ new Date().getFullYear() }}</span><v-btn text x-small to="/security-policy">Security Policy</v-btn>
     </v-footer>
   </v-app>
 </template>
@@ -151,13 +154,13 @@ export default {
     }
   },
   methods: {
-    spooky() {
-      this.$vuetify.theme.themes.light.background = "#B14623"
-      this.$vuetify.theme.themes.light.primary = "#602749"
-      this.$vuetify.theme.themes.light.secondary = "#F6921D"
-      this.$vuetify.theme.themes.dark.background = "#130912"
-      this.$vuetify.theme.themes.dark.primary = "#B14623"
-      this.$vuetify.theme.themes.dark.secondary = "#3E1C33"
+    yummy() {
+      this.$vuetify.theme.themes.light.background = "#996236"
+      this.$vuetify.theme.themes.light.primary = "#F8B12C"
+      this.$vuetify.theme.themes.light.secondary = "#829D36"
+      this.$vuetify.theme.themes.dark.background = "#382615"
+      this.$vuetify.theme.themes.dark.primary = "#859D3C"
+      this.$vuetify.theme.themes.dark.secondary = "#9D221E"
     }
   }
 };

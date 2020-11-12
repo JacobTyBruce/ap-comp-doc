@@ -77,6 +77,7 @@
               currentData = null;
               newData = {};
               saveTitle = null;
+              select = null
             "
             >Back</v-btn
           ></v-col
@@ -134,8 +135,71 @@
           ></v-select>
         </v-col>
       </v-row>
+      <v-row v-if="select == 'title' || select == 'description' || select == 'text' || select == 'challenge'">
+        <v-col cols="1">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn icon @click="insertFormat($event,'strong')" v-on="{ on }"><v-icon>mdi-format-bold</v-icon></v-btn>
+          </template>
+          <span>Bold</span>
+          </v-tooltip>
+          
+        </v-col>
+        <v-col cols="1">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn icon @click="insertFormat($event,'i')" v-on="{ on }"><v-icon>mdi-format-italic</v-icon></v-btn>
+          </template>
+          <span>Italicize</span>
+          </v-tooltip>
+          
+          </v-col>
+        <v-col cols="1">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn icon @click="insertFormat($event,'code')" v-on="{ on }"><v-icon>mdi-code-tags</v-icon></v-btn>
+          </template>
+          <span>Code Block</span>
+          </v-tooltip>
+          
+          </v-col>
+        <v-col cols="1">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn icon @click="insertFormat($event,'pre')" v-on="{ on }"><v-icon>mdi-text-box-outline</v-icon></v-btn>
+          </template>
+          <span>Pre-Formatted Text</span>
+          </v-tooltip>
+          
+          </v-col>
+        <v-col cols="1">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn icon @click="insertFormat($event,'img')" v-on="{ on }"><v-icon>mdi-image</v-icon></v-btn>
+            </template>
+            <span>Insert Image</span>
+          </v-tooltip>
+        </v-col>
+        <v-spacer></v-spacer>
+        <v-col cols="1">
+          <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-btn icon v-on="on"><v-icon>mdi-help</v-icon></v-btn>
+              </template>
+              <v-container>
+                <v-row><v-icon small>mdi-format-bold</v-icon> - Bold</v-row>
+                <v-row><v-icon small>mdi-format-italic</v-icon> - Italics</v-row>
+                <v-row><v-icon small>mdi-code-tags</v-icon> - Code Block</v-row>
+                <v-row><v-icon small>mdi-text-box-outline</v-icon> - Preformatted Text</v-row>
+                <v-row><v-icon small>mdi-image</v-icon> - Insert Image</v-row>
+              </v-container>
+          </v-tooltip>
+        </v-col>  
+      </v-row>
       <v-row>
         <v-text-field
+          id="title"
+          ref="title"
           v-if="select == 'title'"
           :value="currentData.title"
           @input="
@@ -168,29 +232,36 @@
           "
         ></v-text-field>
         <v-textarea
+          id="description"
+          ref="description"
           v-if="select == 'description'"
           :value="currentData.desc"
           @input="
             newData.desc = $event;
             currentData.desc = $event;
           "
+          @keydown.enter="
+            newData.description += '<br/>';
+            currentData.description += '<br/>';
+          "
           auto-grow
         ></v-textarea>
         <v-textarea
+          id="text"
+          ref="text"
           v-if="select == 'text'"
           :value="currentData.text"
           @input="
             newData.text = $event;
             currentData.text = $event;
           "
+          @keydown.enter="insertBreak($event)"
         ></v-textarea>
         <v-textarea
+          id="challenge"
+          ref="challenge"
           v-if="select == 'challenge'"
           :value="currentData.challenge"
-          @input="
-            newData.challenge = $event;
-            currentData.challenge = $event;
-          "
         ></v-textarea>
       </v-row>
       <v-row justify="center" align="center">
@@ -233,6 +304,31 @@ export default {
     };
   },
   methods: {
+    insertBreak(e) {
+      var sel = e.target.selectionStart;
+      var firstHalf = e.target.value.substring(0,sel);
+      var secondHalf = e.target.value.substring(sel,e.target.value.length);
+      e.target.value = firstHalf+'<br/>'+secondHalf;
+    },
+    insertFormat(e, tag) {
+      console.log(e)
+      var text = document.getElementById(this.select)
+      var startSel = text.selectionStart;
+      var endSel = text.selectionEnd;
+      var firstHalf = text.value.substring(0,startSel);
+      var secondHalf = text.value.substring(endSel,text.value.length);
+      var selection = text.value.substring(startSel, endSel);
+      if (tag == 'img') {
+        this.newData[this.select] = `${firstHalf}<${tag} src=" ">${selection}</${tag}>${secondHalf}`;
+        this.currentData[this.select] = `${firstHalf}<${tag} src=" ">${selection}</${tag}>${secondHalf}`;
+      } else {
+        this.newData[this.select] = `${firstHalf}<${tag}>${selection}</${tag}>${secondHalf}`;
+      this.currentData[this.select] = `${firstHalf}<${tag}>${selection}</${tag}>${secondHalf}`;
+      }
+      this.$nextTick(() => {
+        this.$refs[this.select].focus()
+      })
+    },
     async getData() {
       try {
         var data = await this.$http.get(
