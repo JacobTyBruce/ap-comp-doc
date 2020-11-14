@@ -12,9 +12,10 @@
       >
         <v-card
           color="secondary"
+          height="100%"
         >
           <v-card-title :class="headerColor">{{challenge.title}}</v-card-title>
-          <v-card-text>{{challenge.desc}}</v-card-text>
+          <v-card-text>{{challenge.desc.substring(0,512)}}</v-card-text>
           <v-divider />
           <v-card-actions>
             <v-btn @click="navigate(challenge)" color="info">Go</v-btn>

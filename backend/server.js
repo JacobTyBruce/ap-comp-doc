@@ -293,7 +293,7 @@ app.get("/api/get/:col/all", (req, res) => {
       "Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col
     );
   } else {
-    collection.find({}, { password: 0, sessionToken: 0 }).then(function (data) {
+    collection.find({}, { password: 0, sessionToken: 0, email: 0, resetToken: 0 }).sort({ 'updatedAt': -1 }).then(function (data) {
       res.send(data);
     });
   }
@@ -308,7 +308,7 @@ app.get("/api/get/:col/", (req, res) => {
       "Cannot get Entries or Collection. Error: 404 \n Query: " + req.params.col
     );
   } else {
-    collection.find(query, { password: 0, sessionToken: 0 }).sort({ 'updatedAt': -1 }).then((data) => {
+    collection.find(query, { password: 0, sessionToken: 0, email: 0, resetToken: 0 }).sort({ 'updatedAt': -1 }).then((data) => {
       res.send(data);
     });
   }

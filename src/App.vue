@@ -48,6 +48,16 @@
             <v-list-item-title>Topics</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+
+        <!-- Tools -->
+        <v-list-item link :to="{name: 'Tools'}" @click.stop="drawer = false">
+          <v-list-item-action>
+            <v-icon>mdi-hammer-wrench</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Tools</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
         
         <!-- Help -->
         <v-list-item link :to="{name: 'Help'}" @click.stop="drawer = false">

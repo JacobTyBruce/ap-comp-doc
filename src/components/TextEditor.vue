@@ -30,6 +30,28 @@
           >
         </v-col>
       </v-row>
+      <v-row justify="center" v-if="selecting && type != null">
+        <v-col cols="6" md="2">
+          <v-select
+            v-if="type == 'docs'"
+            :items="docSelect"
+            v-model="filterProp"
+          ></v-select>
+          <v-select
+            v-if="type == 'posts'"
+            :items="postSelect"
+            v-model="filterProp"
+          ></v-select>
+          <v-select
+            v-if="type == 'challenges'"
+            :items="challengeSelect"
+            v-model="filterProp"
+          ></v-select>
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-text-field label="Search..." @input="filterData()" v-model="filterString"></v-text-field>
+        </v-col>
+      </v-row>
       <v-row justify="space-around">
         <v-hover v-slot:default="{ hover }" v-if="type != null">
           <v-card width="99%" class="mb-3 text-center">
@@ -47,7 +69,7 @@
         </v-hover>
         <v-hover
           v-slot:default="{ hover }"
-          v-for="item in allData"
+          v-for="item in filteredData"
           :key="item._id"
         >
           <v-card
@@ -262,6 +284,10 @@
           ref="challenge"
           v-if="select == 'challenge'"
           :value="currentData.challenge"
+          @input="
+            newData.challenge = $event;
+            currentData.challenge = $event;
+          "
         ></v-textarea>
       </v-row>
       <v-row justify="center" align="center">
@@ -286,11 +312,14 @@ export default {
       type: null,
       allData: null,
       currentData: null,
+      filterString: "",
+      filterProp: "",
+      filteredData: [],
       saveTitle: null,
       newData: { posted: false },
-      docSelect: ["title", "description", "text", "tags", "ref"],
+      docSelect: ["title", "desc", "text", "tags", "ref"],
       postSelect: ["title", "text"],
-      challengeSelect: ["title", "description", "challenge", "text"],
+      challengeSelect: ["title", "desc", "challenge", "text"],
       select: null,
       saved: "orange",
       emptyTemplate: {
@@ -335,9 +364,32 @@ export default {
           `${process.env.VUE_APP_API_URL}/api/get/${this.type}/all`
         );
         this.allData = data.data;
+        this.filteredData = this.filteredData = this.allData.filter(content => {
+        return content.text.toLowerCase().includes(this.filterString.toLowerCase())
+        })
       } catch (error) {
         console.error(error);
       }
+    },
+    filterData() {
+      this.filteredData = this.allData.filter(content => {
+      //   var keys = Object.keys(content)
+      //   console.log(keys)
+      //   keys.forEach(key => {
+      //     if (key == 'tags') {
+      //       content.tags.forEach(item => {
+      //         return item.toLowerCase().includes(this.filterString.toLowerCase())
+      //       })
+      //     } else if (key == 'ref' || key == '__v' || key == 'comments') {
+      //       // skip over these
+      //       return;
+      //     } else {
+      //       return content[key].toLowerCase().includes(this.filterString.toLowerCase())
+      //     }
+      //   })
+        // add support for general search later? need to remove obs and id keys
+        return content[this.filterProp].toLowerCase().includes(this.filterString.toLowerCase())
+      })
     },
     setData(item) {
       console.log(item);

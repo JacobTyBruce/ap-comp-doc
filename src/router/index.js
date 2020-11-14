@@ -22,7 +22,7 @@ import Review from '../components/Review.vue'
 import Update from '../components/Update.vue'
 import TextEditor from '../components/TextEditor.vue'
 import SecurityPolicy from '../components/Security.vue'
-
+import Tools from '../views/Tools.vue'
 Vue.use(VueRouter)
 
   const routes = [
@@ -129,6 +129,11 @@ Vue.use(VueRouter)
             component: TextEditor
           }
       ]
+  },
+  {
+    path: '/tools',
+    name: 'Tools',
+    component: Tools
   },
   {
     path: '/security-policy',
